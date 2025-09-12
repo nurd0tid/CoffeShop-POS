@@ -1,5 +1,5 @@
 "use client";
-import Clock from "@/components/Clock";
+import Clock from "@/app/dashboard/pos/components/Clock";
 import Image from "next/image";
 import Link from "next/link";
 import React, { MouseEventHandler, useEffect, useRef, useState } from "react";
@@ -59,7 +59,7 @@ const Header = () => {
           </li>
           <li className="border-r pr-[12px] ml-[12px] me-0 [@media(max-width:1199.96px)]:ml-[7px]  border-r-[#e6eaed]">
             <Link
-              href="#"
+              href="/dashboard"
               className="h-[30px] text-white p-[7px_12px] leading-normal bg-[#6938EF] border border-[#6938ef] shadow-[0_4px_20px_rgba(105,56,239,.15)] text-[13px] rounded-[5px] transition-all duration-[.5s] font-semibold flex items-center gap-2  hover:!bg-[rgb(80.0930322558,22.956744186,236.343255814)] focus:!bg-[rgb(80.0930322558,22.956744186,236.343255814)] hover:border hover:!border-[rgb(80.0930322558,22.956744186,236.343255814)] focus:border focus:!border-[rgb(80.0930322558,22.956744186,236.343255814)] hover:shadow-[0_3px_10px_rgba(105,56,239,.5)] focus:shadow-[0_3px_10px_rgba(105,56,239,.5)] hover:!text-white focus:!text-white"
             >
               <TbWorld />

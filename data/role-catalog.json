@@ -1,0 +1,7 @@
+[
+  { "role_code": "owner", "name": "Owner" },
+  { "role_code": "auditor", "name": "Auditor" },
+  { "role_code": "hr", "name": "HR" },
+  { "role_code": "staff", "name": "Staff" },
+  { "role_code": "manager", "name": "Manager" }
+]

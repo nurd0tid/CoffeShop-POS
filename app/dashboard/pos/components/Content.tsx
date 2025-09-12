@@ -11,8 +11,8 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import categories from "@/data/categories.json";
 import { MenuItem } from "@/types/menu";
-import Content from "@/app/components/pos/Content";
-import Sidebar from "@/app/components/pos/Sidebar";
+import InnerContent from "@/app/dashboard/pos/components/InnerContent";
+import Sidebar from "@/app/dashboard/pos/components/Sidebar";
 
 export default function PosContent() {
   const sliderRef = useRef<Slider | null>(null);
@@ -125,7 +125,7 @@ export default function PosContent() {
                 </Slider>
 
                 {/* Content */}
-                <Content activeCategoryId={activeCategoryId} onSelectMenus={setSelectedMenus} />
+                <InnerContent activeCategoryId={activeCategoryId} onSelectMenus={setSelectedMenus} />
               </div>
             </div>
 

@@ -1,0 +1,7 @@
+[
+  { "code": "employees:view", "description": "Buka halaman karyawan & baca/list data" },
+  { "code": "employees:create", "description": "Tambah karyawan" },
+  { "code": "employees:update", "description": "Ubah karyawan" },
+  { "code": "employees:delete", "description": "Hapus karyawan" },
+  { "code": "employees:*", "description": "Semua aksi karyawan" }
+]

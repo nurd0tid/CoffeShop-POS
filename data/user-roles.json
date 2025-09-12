@@ -1,0 +1,19 @@
+[
+  { "company_id": "2f6c6f36-4b73-4f84-89a5-3d3f8ff8a111", "user_id": "8a1a1f50-9f2d-4db7-ae65-8f4c4b1c0a01", "role_codes": ["owner"] },
+  { "company_id": "2f6c6f36-4b73-4f84-89a5-3d3f8ff8a111", "user_id": "c3b4d9f2-2a3b-4d13-8d7e-2e1b5a4f1a02", "role_codes": ["auditor"] },
+  { "company_id": "2f6c6f36-4b73-4f84-89a5-3d3f8ff8a111", "user_id": "f54e2a7c-1f9a-4e0a-9b0a-7ab2d3c4e103", "role_codes": ["hr"] },
+  { "company_id": "2f6c6f36-4b73-4f84-89a5-3d3f8ff8a111", "user_id": "0a12bc34-de56-4789-abcd-001122334401", "role_codes": ["staff"] },
+  { "company_id": "2f6c6f36-4b73-4f84-89a5-3d3f8ff8a111", "user_id": "0a12bc34-de56-4789-abcd-001122334402", "role_codes": ["staff"] },
+  { "company_id": "2f6c6f36-4b73-4f84-89a5-3d3f8ff8a111", "user_id": "0a12bc34-de56-4789-abcd-001122334403", "role_codes": ["staff"] },
+  { "company_id": "2f6c6f36-4b73-4f84-89a5-3d3f8ff8a111", "user_id": "0a12bc34-de56-4789-abcd-001122334404", "role_codes": ["staff"] },
+  { "company_id": "2f6c6f36-4b73-4f84-89a5-3d3f8ff8a111", "user_id": "0a12bc34-de56-4789-abcd-001122334405", "role_codes": ["staff"] },
+
+  { "company_id": "9c5b7e12-0a43-4c6a-9b1e-2f6a7d8c9e22", "user_id": "4b6c7d8e-9f01-4a2b-b3c4-d5e6f7a8b901", "role_codes": ["owner"] },
+  { "company_id": "9c5b7e12-0a43-4c6a-9b1e-2f6a7d8c9e22", "user_id": "5c7d8e9f-0a12-4b3c-c4d5-e6f7a8b9c902", "role_codes": ["auditor"] },
+  { "company_id": "9c5b7e12-0a43-4c6a-9b1e-2f6a7d8c9e22", "user_id": "6d8e9f0a-1b23-4c4d-d5e6-f7a8b9c0d903", "role_codes": ["hr"] },
+  { "company_id": "9c5b7e12-0a43-4c6a-9b1e-2f6a7d8c9e22", "user_id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e904", "role_codes": ["staff"] },
+  { "company_id": "9c5b7e12-0a43-4c6a-9b1e-2f6a7d8c9e22", "user_id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e905", "role_codes": ["staff"] },
+  { "company_id": "9c5b7e12-0a43-4c6a-9b1e-2f6a7d8c9e22", "user_id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e906", "role_codes": ["staff"] },
+  { "company_id": "9c5b7e12-0a43-4c6a-9b1e-2f6a7d8c9e22", "user_id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e907", "role_codes": ["staff"] },
+  { "company_id": "9c5b7e12-0a43-4c6a-9b1e-2f6a7d8c9e22", "user_id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e908", "role_codes": ["staff"] }
+]

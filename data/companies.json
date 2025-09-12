@@ -1,0 +1,16 @@
+[
+  {
+    "id": "2f6c6f36-4b73-4f84-89a5-3d3f8ff8a111",
+    "name": "PT Alpha Nusantara",
+    "slug": "alpha-nusantara",
+    "owner_user_id": "8a1a1f50-9f2d-4db7-ae65-8f4c4b1c0a01",
+    "is_active": true
+  },
+  {
+    "id": "9c5b7e12-0a43-4c6a-9b1e-2f6a7d8c9e22",
+    "name": "PT Beta Mandiri",
+    "slug": "beta-mandiri",
+    "owner_user_id": "4b6c7d8e-9f01-4a2b-b3c4-d5e6f7a8b901",
+    "is_active": true
+  }
+]

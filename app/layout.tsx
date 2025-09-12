@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${nunitoSans.variable} antialiased`}>
-        <div>{children}</div>
+        <>{children}</>
       </body>
     </html>
   );

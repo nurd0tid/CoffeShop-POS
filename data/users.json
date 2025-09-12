@@ -1,0 +1,19 @@
+[
+  { "id": "8a1a1f50-9f2d-4db7-ae65-8f4c4b1c0a01", "email": "owner.alpha@demo.com", "password": "password123", "full_name": "Andi Owner" },
+  { "id": "c3b4d9f2-2a3b-4d13-8d7e-2e1b5a4f1a02", "email": "auditor.alpha@demo.com", "password": "password123", "full_name": "Ayu Auditor" },
+  { "id": "f54e2a7c-1f9a-4e0a-9b0a-7ab2d3c4e103", "email": "hr.alpha@demo.com", "password": "password123", "full_name": "Hani HR" },
+  { "id": "0a12bc34-de56-4789-abcd-001122334401", "email": "staff1.alpha@demo.com", "password": "password123", "full_name": "Sinta Staff 1" },
+  { "id": "0a12bc34-de56-4789-abcd-001122334402", "email": "staff2.alpha@demo.com", "password": "password123", "full_name": "Sigit Staff 2" },
+  { "id": "0a12bc34-de56-4789-abcd-001122334403", "email": "staff3.alpha@demo.com", "password": "password123", "full_name": "Sari Staff 3" },
+  { "id": "0a12bc34-de56-4789-abcd-001122334404", "email": "staff4.alpha@demo.com", "password": "password123", "full_name": "Surya Staff 4" },
+  { "id": "0a12bc34-de56-4789-abcd-001122334405", "email": "staff5.alpha@demo.com", "password": "password123", "full_name": "Salma Staff 5" },
+
+  { "id": "4b6c7d8e-9f01-4a2b-b3c4-d5e6f7a8b901", "email": "owner.beta@demo.com", "password": "password123", "full_name": "Bimo Owner" },
+  { "id": "5c7d8e9f-0a12-4b3c-c4d5-e6f7a8b9c902", "email": "auditor.beta@demo.com", "password": "password123", "full_name": "Adit Auditor" },
+  { "id": "6d8e9f0a-1b23-4c4d-d5e6-f7a8b9c0d903", "email": "hr.beta@demo.com", "password": "password123", "full_name": "Rina HR" },
+  { "id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e904", "email": "staff1.beta@demo.com", "password": "password123", "full_name": "Bayu Staff 1" },
+  { "id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e905", "email": "staff2.beta@demo.com", "password": "password123", "full_name": "Bela Staff 2" },
+  { "id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e906", "email": "staff3.beta@demo.com", "password": "password123", "full_name": "Bagus Staff 3" },
+  { "id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e907", "email": "staff4.beta@demo.com", "password": "password123", "full_name": "Bintang Staff 4" },
+  { "id": "7e9f0a1b-2c34-4d5e-e6f7-a8b9c0d1e908", "email": "staff5.beta@demo.com", "password": "password123", "full_name": "Berlian Staff 5" }
+]

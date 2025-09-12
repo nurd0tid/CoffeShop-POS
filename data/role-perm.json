@@ -1,0 +1,7 @@
+[
+  { "role_code": "owner", "permissions": ["employees:*"] },
+  { "role_code": "auditor", "permissions": ["employees:view"] },
+  { "role_code": "hr", "permissions": ["employees:view", "employees:create", "employees:update"] },
+  { "role_code": "staff", "permissions": ["employees:view"] },
+  { "role_code": "manager", "permissions": ["employees:view", "employees:update"] }
+]

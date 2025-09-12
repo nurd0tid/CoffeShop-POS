@@ -13,7 +13,7 @@ type Props = {
   onSelectMenus?: (selected: MenuItem[]) => void;
 };
 
-const Content = ({ activeCategoryId, onSelectMenus }: Props) => {
+const InnerContent = ({ activeCategoryId, onSelectMenus }: Props) => {
   const [selectedMenus, setSelectedMenus] = useState<string[]>([]);
   const [search, setSearch] = useState("");
 
@@ -109,4 +109,4 @@ const Content = ({ activeCategoryId, onSelectMenus }: Props) => {
   );
 };
 
-export default Content;
+export default InnerContent;
