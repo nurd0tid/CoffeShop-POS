@@ -1,0 +1,16 @@
+[
+  { "id": "9f9c1e4a-2b47-4a6a-bf3e-72b4b64b8c88", "name": "All Categories", "image": "category-01.svg", "count": 80 },
+  { "id": "7e2a03c1-06f6-4f9b-a3e8-7dbe1c879f15", "name": "Signature Coffee", "image": "coffe.png", "count": 7 },
+  { "id": "efde04c7-ef6f-49bb-9b36-4196df3c86e7", "name": "Coffee", "image": "coffe_2.png", "count": 8 },
+  { "id": "c61c2d0c-07c7-4ad2-a4be-431a5b5f7c12", "name": "Manual Brew", "image": "manual_brew.png", "count": 2 },
+  { "id": "f278a1f5-1d73-4b49-8f37-203f2d39114c", "name": "Bagi Series", "image": "bagi_series.png", "count": 5 },
+  { "id": "f35e55f1-68b0-487e-96c1-6579f7733ff1", "name": "Choco Series", "image": "chocho_series.png", "count": 4 },
+  { "id": "5d98a356-cc4d-47cb-8f6f-7857ecdd172f", "name": "Speciality Tea", "image": "speciality_tea.png", "count": 3 },
+  { "id": "f83bdf25-f988-4205-988f-dce0bbd37324", "name": "Yakult Series", "image": "yakult_series.png", "count": 2 },
+  { "id": "51d8a7a7-6bc3-46b7-baf6-4c24640293aa", "name": "Mocktail Series", "image": "mocktail_series.png", "count": 6 },
+  { "id": "86f0620e-1dc7-40df-9e9c-60fd5b501f89", "name": "Rice Bowl Series", "image": "rice_bowl_series.png", "count": 1 },
+  { "id": "20ed1c2e-96b1-4a2c-89e2-39f03ccfa1a9", "name": "Indomie Series", "image": "indomie_series.png", "count": 3 },
+  { "id": "b8f4f8dd-bd15-48d0-bf3d-61af2a5d4d2a", "name": "Snack Series", "image": "snack.png", "count": 6 },
+  { "id": "1e0a94ec-6c6f-44fc-8a3a-9a2bbfba9d08", "name": "Bagi Dimsum", "image": "dimsum.png", "count": 4 },
+  { "id": "d3f3d7f1-8f84-4f87-8cf6-09b244fe5a94", "name": "Bagi Croissant", "image": "crossaint.png", "count": 4 }
+]

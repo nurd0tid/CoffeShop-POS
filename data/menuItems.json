@@ -1,0 +1,499 @@
+[
+  {
+    "id": "2f7f9d0b-0d46-4f2f-9d46-7b1a2c8f00f9",
+    "categoryId": "7e2a03c1-06f6-4f9b-a3e8-7dbe1c879f15",
+    "name": "Bagi Akal Sehat",
+    "description": "Es Kopi Susu dengan kandungan gula putih khusus.",
+    "price": [
+      { "size": "S", "value": 20000 },
+      { "size": "L", "value": 24540 },
+      { "size": "XL", "value": 81810 }
+    ]
+  },
+  {
+    "id": "34b08a10-8b73-41d8-a11d-7c48162bdf0f",
+    "categoryId": "7e2a03c1-06f6-4f9b-a3e8-7dbe1c879f15",
+    "name": "Bagi Blangkon",
+    "description": "Es Kopi Susu dengan gula organik khusus.",
+    "price": [
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 },
+      { "size": "XL", "value": 90900 }
+    ]
+  },
+  {
+    "id": "a476ec25-5307-40aa-bd43-d54160c2c824",
+    "categoryId": "7e2a03c1-06f6-4f9b-a3e8-7dbe1c879f15",
+    "name": "Bagi Ingatan",
+    "description": "Es Kopi Susu dengan sirup nostalgia.",
+    "price": [
+      { "size": "S", "value": 24540 },
+      { "size": "L", "value": 29090 },
+      { "size": "XL", "value": 104540 }
+    ]
+  },
+  {
+    "id": "e4c56d1f-289f-4d84-963b-331e49c2e9ff",
+    "categoryId": "7e2a03c1-06f6-4f9b-a3e8-7dbe1c879f15",
+    "name": "Bagi Kasih Sayang",
+    "description": "Es Kopi Susu dengan sirup hazelnut.",
+    "price": [
+      { "size": "S", "value": 24540 },
+      { "size": "L", "value": 29090 },
+      { "size": "XL", "value": 104540 }
+    ]
+  },
+  {
+    "id": "c5c2893f-777c-47be-9dc0-719923bf4e85",
+    "categoryId": "7e2a03c1-06f6-4f9b-a3e8-7dbe1c879f15",
+    "name": "Bagi Kekayaan",
+    "description": "Es Kopi Susu Vietnam dengan SKM.",
+    "price": [
+      { "size": "S", "value": 18180 },
+      { "size": "L", "value": 22720 },
+      { "size": "XL", "value": 72720 }
+    ]
+  },
+  {
+    "id": "57f7d9da-3250-4642-9a34-92a2b0f4f62c",
+    "categoryId": "7e2a03c1-06f6-4f9b-a3e8-7dbe1c879f15",
+    "name": "Bagi Kepastian",
+    "description": "Es Kopi Susu dengan sirup salted caramel.",
+    "price": [
+      { "size": "S", "value": 24540 },
+      { "size": "L", "value": 29090 },
+      { "size": "XL", "value": 104540 }
+    ]
+  },
+  {
+    "id": "f72a12cb-fdc6-4577-9c4f-53065fa1f10a",
+    "categoryId": "7e2a03c1-06f6-4f9b-a3e8-7dbe1c879f15",
+    "name": "Caramel Macchiato",
+    "description": "Perpaduan kopi, susu, dan sauce caramel.",
+    "price": [{ "size": "S", "value": 24540 }]
+  },
+  {
+    "id": "1ecb4f02-6dfd-4ff5-bf84-25eaab54a84c",
+    "categoryId": "efde04c7-ef6f-49bb-9b36-4196df3c86e7",
+    "name": "Americano",
+    "description": "Espresso dengan air panas/dingin.",
+    "price": [
+      { "size": "H", "value": 18180 },
+      { "size": "S", "value": 18180 },
+      { "size": "L", "value": 22720 }
+    ]
+  },
+  {
+    "id": "4f84aef3-4ad1-4a88-9c84-faadcf39f6da",
+    "categoryId": "efde04c7-ef6f-49bb-9b36-4196df3c86e7",
+    "name": "Caffe Latte",
+    "description": "Espresso dengan susu segar dan foam lembut.",
+    "price": [
+      { "size": "H", "value": 22720 },
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 }
+    ]
+  },
+  {
+    "id": "ae8cf0e9-3804-48c8-8ad5-52e39416d5a1",
+    "categoryId": "efde04c7-ef6f-49bb-9b36-4196df3c86e7",
+    "name": "Cappuccino",
+    "description": "Espresso dengan susu segar dan foam tebal.",
+    "price": [
+      { "size": "H", "value": 22720 },
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 }
+    ]
+  },
+  {
+    "id": "0c2d0e9b-42cb-42f0-8e43-ecaf0b9cb3b6",
+    "categoryId": "efde04c7-ef6f-49bb-9b36-4196df3c86e7",
+    "name": "Mochaccino",
+    "description": "Espresso dengan susu segar dan chocolate.",
+    "price": [
+      { "size": "H", "value": 24540 },
+      { "size": "S", "value": 24540 },
+      { "size": "L", "value": 29090 }
+    ]
+  },
+  {
+    "id": "d10afdbc-7a8a-4cb9-bd49-c132a69c1693",
+    "categoryId": "efde04c7-ef6f-49bb-9b36-4196df3c86e7",
+    "name": "Piccolo",
+    "description": "Espresso + susu segar gelas kecil.",
+    "price": [
+      { "size": "H", "value": 22720 },
+      { "size": "S", "value": 22720 }
+    ]
+  },
+  {
+    "id": "8b41705f-9f87-41d8-9408-8d17e476fe14",
+    "categoryId": "efde04c7-ef6f-49bb-9b36-4196df3c86e7",
+    "name": "Long Black",
+    "description": "Double ristretto + air panas/dingin.",
+    "price": [
+      { "size": "H", "value": 18180 },
+      { "size": "S", "value": 18180 },
+      { "size": "L", "value": 22720 }
+    ]
+  },
+  {
+    "id": "d6304b57-5e1d-4c69-859e-bc8159d5950e",
+    "categoryId": "efde04c7-ef6f-49bb-9b36-4196df3c86e7",
+    "name": "Affogato",
+    "description": "Espresso + es krim vanilla.",
+    "price": [{ "size": "S", "value": 22720 }]
+  },
+  {
+    "id": "d8a30b8c-7a9d-4572-bfd4-2b8ebbcfbb59",
+    "categoryId": "efde04c7-ef6f-49bb-9b36-4196df3c86e7",
+    "name": "Flat White",
+    "description": "Espresso dengan steamed milk.",
+    "price": [
+      { "size": "H", "value": 22720 },
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 }
+    ]
+  },
+
+  {
+    "id": "ad9c94e7-7c91-41fb-bc82-07d41c451379",
+    "categoryId": "c61c2d0c-07c7-4ad2-a4be-431a5b5f7c12",
+    "name": "V60",
+    "description": "Kopi seduh metode V60.",
+    "price": [{ "size": "S", "value": 23630 }]
+  },
+  {
+    "id": "e71dce1e-96ee-4df7-a2d2-9240863e6d56",
+    "categoryId": "c61c2d0c-07c7-4ad2-a4be-431a5b5f7c12",
+    "name": "Kopi Tubruk",
+    "description": "Kopi khas Indonesia seduh air panas.",
+    "price": [{ "size": "S", "value": 20000 }]
+  },
+
+  {
+    "id": "21d3b270-6c4c-41d3-b2e0-c4a09b53a78c",
+    "categoryId": "f278a1f5-1d73-4b49-8f37-203f2d39114c",
+    "name": "Chocolate",
+    "description": "Perpaduan susu dan dark chocolate.",
+    "price": [
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 },
+      { "size": "XL", "value": 81810 }
+    ]
+  },
+  {
+    "id": "0a55a693-8d2d-497e-bc15-401af1d3fbd9",
+    "categoryId": "f278a1f5-1d73-4b49-8f37-203f2d39114c",
+    "name": "Matcha",
+    "description": "Perpaduan susu dan teh hijau.",
+    "price": [
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 },
+      { "size": "XL", "value": 90900 }
+    ]
+  },
+  {
+    "id": "2c5f87aa-48f7-4ed1-9b30-451bf00e2f79",
+    "categoryId": "f278a1f5-1d73-4b49-8f37-203f2d39114c",
+    "name": "Taro",
+    "description": "Perpaduan susu dan ubi ungu.",
+    "price": [
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 },
+      { "size": "XL", "value": 81810 }
+    ]
+  },
+  {
+    "id": "c2492b40-6f31-41d1-a973-9a4af05cf808",
+    "categoryId": "f278a1f5-1d73-4b49-8f37-203f2d39114c",
+    "name": "Lemon Tea Signature",
+    "description": "Teh hitam + vanilla + homemade lemon juice.",
+    "price": [
+      { "size": "S", "value": 20000 },
+      { "size": "L", "value": 24540 }
+    ]
+  },
+  {
+    "id": "7f2ab75a-4a7a-4f56-bc65-7ec4cc91fd1e",
+    "categoryId": "f278a1f5-1d73-4b49-8f37-203f2d39114c",
+    "name": "Klepon",
+    "description": "Perpaduan susu + cita rasa klepon tradisional.",
+    "price": [
+      { "size": "S", "value": 24540 },
+      { "size": "L", "value": 29090 }
+    ]
+  },
+
+  {
+    "id": "197de50f-70c2-4a2a-a4e2-091d3f41f91a",
+    "categoryId": "f35e55f1-68b0-487e-96c1-6579f7733ff1",
+    "name": "Choco Hazelnut",
+    "description": "Chocolate creamy + sirup hazelnut.",
+    "price": [
+      { "size": "H", "value": 22720 },
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 }
+    ]
+  },
+  {
+    "id": "a0b31aa7-d1f6-4987-8424-51abfa40e3c9",
+    "categoryId": "f35e55f1-68b0-487e-96c1-6579f7733ff1",
+    "name": "Cake Choco Cinnamon",
+    "description": "Chocolate creamy + sirup kayu manis.",
+    "price": [
+      { "size": "H", "value": 22720 },
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 }
+    ]
+  },
+  {
+    "id": "c438a67f-dc5d-4c0b-8930-cfc07c3b3f7d",
+    "categoryId": "f35e55f1-68b0-487e-96c1-6579f7733ff1",
+    "name": "Banana Vanilla Choco",
+    "description": "Chocolate creamy + sirup pisang & vanilla.",
+    "price": [
+      { "size": "H", "value": 22720 },
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 }
+    ]
+  },
+  {
+    "id": "9d408176-f23d-42a6-9d2a-3f65d8760540",
+    "categoryId": "f35e55f1-68b0-487e-96c1-6579f7733ff1",
+    "name": "Peppermint Candy Choco",
+    "description": "Chocolate creamy + mint & aroma blossom.",
+    "price": [
+      { "size": "H", "value": 22720 },
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 }
+    ]
+  },
+
+  {
+    "id": "648fcd3c-875c-4a88-9c64-7733c93604f2",
+    "categoryId": "5d98a356-cc4d-47cb-8f6f-7857ecdd172f",
+    "name": "Jasmine Punch Tea",
+    "description": "Teh melati + lemon juice + blossom + ginger.",
+    "price": [
+      { "size": "H", "value": 20000 },
+      { "size": "S", "value": 20000 },
+      { "size": "L", "value": 24540 }
+    ]
+  },
+  {
+    "id": "0c1d8bfb-55ec-4066-9fd2-41b8f31a73cb",
+    "categoryId": "5d98a356-cc4d-47cb-8f6f-7857ecdd172f",
+    "name": "Butterfly Pea Tea",
+    "description": "Teh bunga telang + lemon + ginger.",
+    "price": [
+      { "size": "H", "value": 20000 },
+      { "size": "S", "value": 20000 },
+      { "size": "L", "value": 24540 }
+    ]
+  },
+  {
+    "id": "9089e556-5e25-420d-942c-8359b6e04a1a",
+    "categoryId": "5d98a356-cc4d-47cb-8f6f-7857ecdd172f",
+    "name": "Rosella Tea",
+    "description": "Ekstrak rosella + kayu manis.",
+    "price": [
+      { "size": "H", "value": 20000 },
+      { "size": "S", "value": 20000 },
+      { "size": "L", "value": 24540 }
+    ]
+  },
+
+  {
+    "id": "23b8457c-b7c7-41ce-91da-2d3bd621ce6a",
+    "categoryId": "f83bdf25-f988-4205-988f-dce0bbd37324",
+    "name": "Yakult Lychee",
+    "description": "Yakult + sirup lychee segar.",
+    "price": [
+      { "size": "S", "value": 22720 },
+      { "size": "L", "value": 27270 },
+      { "size": "XL", "value": 100000 }
+    ]
+  },
+  {
+    "id": "9ed32084-112e-4966-9e6d-04e47320fa27",
+    "categoryId": "f83bdf25-f988-4205-988f-dce0bbd37324",
+    "name": "Yakult Strawberry Milk",
+    "description": "Yakult + homemade strawberry + susu segar.",
+    "price": [{ "size": "S", "value": 24540 }]
+  },
+
+  {
+    "id": "afc7b4f9-7a89-44dd-b2c1-1d9675ebd18d",
+    "categoryId": "51d8a7a7-6bc3-46b7-baf6-4c24640293aa",
+    "name": "Black Symphony",
+    "description": "Cold brew + lemon juice + mint.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+  {
+    "id": "d1d6d037-0cbb-41cc-84d0-b6f36546b1f0",
+    "categoryId": "51d8a7a7-6bc3-46b7-baf6-4c24640293aa",
+    "name": "Kosmo",
+    "description": "Cold brew + rosella.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+  {
+    "id": "17f43569-8fbe-4b6c-a0fb-7506cf86ff3f",
+    "categoryId": "51d8a7a7-6bc3-46b7-baf6-4c24640293aa",
+    "name": "Joker",
+    "description": "Non-coffee + apel, kayu manis, soda.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+  {
+    "id": "3622ea3e-9a3d-4b5c-bf34-8b07cbe45294",
+    "categoryId": "51d8a7a7-6bc3-46b7-baf6-4c24640293aa",
+    "name": "Scream Multiple O",
+    "description": "Non-coffee + nanas, kelapa, soda.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+  {
+    "id": "bcd9b86b-fd64-46d5-9e5a-91f4a6b7b6f3",
+    "categoryId": "51d8a7a7-6bc3-46b7-baf6-4c24640293aa",
+    "name": "Orange Bloom",
+    "description": "Non-coffee + jeruk & melon.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+  {
+    "id": "f1167fbb-5a5d-40cb-83c1-96e2e7d234d4",
+    "categoryId": "51d8a7a7-6bc3-46b7-baf6-4c24640293aa",
+    "name": "Fancy Espresso",
+    "description": "Cold brew + pomegranate.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+
+  {
+    "id": "cf1e7edb-8637-4766-ae73-62fa36a7e993",
+    "categoryId": "86f0620e-1dc7-40df-9e9c-60fd5b501f89",
+    "name": "Beef Yakiniku",
+    "description": "Beef slice + nasi + telur + sayur + homemade sauce.",
+    "price": [{ "size": "S", "value": 34540 }]
+  },
+
+  {
+    "id": "f31aa1b5-1d9b-40b7-a7dc-18e84537e62a",
+    "categoryId": "20ed1c2e-96b1-4a2c-89e2-39f03ccfa1a9",
+    "name": "Indomie Sambal Matah",
+    "description": "Indomie + sambal matah pedas segar.",
+    "price": [{ "size": "S", "value": 25450 }]
+  },
+  {
+    "id": "926ea25a-cf3a-463e-8fdb-d64d2079f5b8",
+    "categoryId": "20ed1c2e-96b1-4a2c-89e2-39f03ccfa1a9",
+    "name": "Indomie Sambal Goang",
+    "description": "Indomie + sambal goang pedas gurih.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+  {
+    "id": "b6c2e676-213a-4d85-8d53-04cbd9e90d8d",
+    "categoryId": "20ed1c2e-96b1-4a2c-89e2-39f03ccfa1a9",
+    "name": "Indomie Internet OG",
+    "description": "Indomie + telur + kornet.",
+    "price": [{ "size": "S", "value": 20900 }]
+  },
+
+  {
+    "id": "ea3e0d34-4ebc-4e77-836c-ffca43b32ecb",
+    "categoryId": "b8f4f8dd-bd15-48d0-bf3d-61af2a5d4d2a",
+    "name": "Fries Bolognaise",
+    "description": "Kentang goreng + sauce bolognaise & keju.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+  {
+    "id": "9ad54fc2-54a5-4f2f-9022-f7c24ffb0182",
+    "categoryId": "b8f4f8dd-bd15-48d0-bf3d-61af2a5d4d2a",
+    "name": "Sausage & Fries",
+    "description": "Kentang & sosis goreng + sauce sambal.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+  {
+    "id": "a527cb97-04c9-4013-93fb-36a21dc3ef8b",
+    "categoryId": "b8f4f8dd-bd15-48d0-bf3d-61af2a5d4d2a",
+    "name": "Tahu Walik",
+    "description": "Tahu isi adonan bakso + sauce sambal.",
+    "price": [{ "size": "S", "value": 18180 }]
+  },
+  {
+    "id": "5b27b2fa-0ff6-48dd-946f-9f2506071a8d",
+    "categoryId": "b8f4f8dd-bd15-48d0-bf3d-61af2a5d4d2a",
+    "name": "Mix Platter",
+    "description": "Snack mix kentang + sosis + nugget + 3 sauce.",
+    "price": [{ "size": "S", "value": 80000 }]
+  },
+  {
+    "id": "6f4ebc16-0efc-42fa-9237-0ab924db05e3",
+    "categoryId": "b8f4f8dd-bd15-48d0-bf3d-61af2a5d4d2a",
+    "name": "Combo",
+    "description": "Snack singkong isi oncom.",
+    "price": [{ "size": "S", "value": 20000 }]
+  },
+  {
+    "id": "2decc6f3-fccf-4485-9ed5-dfbf9b1c1f5c",
+    "categoryId": "b8f4f8dd-bd15-48d0-bf3d-61af2a5d4d2a",
+    "name": "Cireng",
+    "description": "Tepung kanji goreng crispy.",
+    "price": [{ "size": "S", "value": 18180 }]
+  },
+
+  {
+    "id": "49fefbe0-c9a6-41c3-870f-530fba2e0b8b",
+    "categoryId": "1e0a94ec-6c6f-44fc-8a3a-9a2bbfba9d08",
+    "name": "Bagi Lkt Ayam",
+    "description": "Dimsum ayam balut kulit tahu.",
+    "price": [{ "size": "S", "value": 20900 }]
+  },
+  {
+    "id": "b5e9fbc5-01a8-4451-b71a-6c97f36bc586",
+    "categoryId": "1e0a94ec-6c6f-44fc-8a3a-9a2bbfba9d08",
+    "name": "Bagi Lkt Udang",
+    "description": "Dimsum udang balut kulit tahu.",
+    "price": [{ "size": "S", "value": 20900 }]
+  },
+  {
+    "id": "c9da7b13-58f8-4aa2-a9f9-72ab13dcffb7",
+    "categoryId": "1e0a94ec-6c6f-44fc-8a3a-9a2bbfba9d08",
+    "name": "Bagi Siomay Ayam",
+    "description": "Dimsum ayam giling.",
+    "price": [{ "size": "S", "value": 20900 }]
+  },
+  {
+    "id": "30c873f5-7753-40f9-8e21-17da76fc6128",
+    "categoryId": "1e0a94ec-6c6f-44fc-8a3a-9a2bbfba9d08",
+    "name": "Bagi Siomay Udang",
+    "description": "Dimsum udang giling.",
+    "price": [{ "size": "S", "value": 20900 }]
+  },
+
+  {
+    "id": "90290e1e-924d-452e-8d2d-cdb0cb47f123",
+    "categoryId": "d3f3d7f1-8f84-4f87-8cf6-09b244fe5a94",
+    "name": "Cheese Croissant",
+    "description": "Croissant isi keju lembut.",
+    "price": [{ "size": "S", "value": 22270 }]
+  },
+  {
+    "id": "e451129c-cfc4-44b8-9b3e-67f57f777d55",
+    "categoryId": "d3f3d7f1-8f84-4f87-8cf6-09b244fe5a94",
+    "name": "Classic Almond Croissant",
+    "description": "Croissant isi almond cream.",
+    "price": [{ "size": "S", "value": 27270 }]
+  },
+  {
+    "id": "7b6bda2b-69a6-4da4-9d84-83b5432fcd3a",
+    "categoryId": "d3f3d7f1-8f84-4f87-8cf6-09b244fe5a94",
+    "name": "Pain Au Chocolate Croissant",
+    "description": "Croissant isi chocolate.",
+    "price": [{ "size": "S", "value": 22720 }]
+  },
+  {
+    "id": "5dcce01a-8d57-43b5-9b42-2453dcf3c3a2",
+    "categoryId": "d3f3d7f1-8f84-4f87-8cf6-09b244fe5a94",
+    "name": "Plain Croissant",
+    "description": "Croissant rasa manis gurih.",
+    "price": [{ "size": "S", "value": 18180 }]
+  }
+]
