@@ -14,8 +14,8 @@ export type Row = {
   name: string;
   email: string;
   roles: string[];
-  isOwner: boolean;
-  isActive: boolean;
+  is_owner: boolean;
+  is_active: boolean;
   joinedAt: string;
 };
 
@@ -54,8 +54,8 @@ export function getUsersOfCompany(companyId: string): Row[] {
       name: u?.name ?? "-",
       email: u?.email ?? "-",
       roles: ur?.role_codes ?? [],
-      isOwner: m.is_owner,
-      isActive: (u?.is_active ?? true) && m.is_active,
+      is_owner: m.is_owner,
+      is_active: (u?.is_active ?? true) && m.is_active,
       joinedAt: m.joined_at ?? u?.created_at ?? "",
     };
   });

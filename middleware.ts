@@ -7,12 +7,29 @@ import { hasViewByPath } from "@/lib/perm";
 const AUTH_ROUTES = ["/auth/signin", "/auth/register", "/auth/forgot-password"];
 const AFTER_LOGIN_REDIRECT = "/dashboard";
 
-// HANYA guard VIEW (RBAC) — minimal: /dashboard/users ⇒ employees:view
-const PAGE_VIEW_RULES: { re: RegExp; module: string }[] = [{ re: /^\/dashboard\/users$/, module: "employees" }];
+// Aturan VIEW (RBAC)
+// - Gunakan `module` (string) untuk satu modul (compat lama)
+// - Atau `modules` (string[]) untuk beberapa modul
+// - `mode`: 'any' (default) = minimal 1 modul boleh, 'all' = semua modul wajib boleh
+type ViewRule = {
+  re: RegExp;
+  module?: string; // legacy: satu modul
+  modules?: string[]; // baru: banyak modul
+  mode?: "any" | "all"; // default 'any'
+};
+
+// Contoh:
+// - /dashboard/users: cukup punya 'employees' (any, default)
+// - /dashboard/settings: wajib punya 'settings' DAN 'employees' (all)
+const PAGE_VIEW_RULES: ViewRule[] = [
+  { re: /^\/dashboard\/users$/, module: "employees" },
+  { re: /^\/dashboard\/roles-permissions$/, module: "roles" },
+  // { re: /^\/dashboard\/settings$/, modules: ["settings", "employees"], mode: "all" },
+];
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
-  const { pathname, searchParams } = req.nextUrl;
+  const { pathname } = req.nextUrl;
 
   const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
   const isProtected = pathname.startsWith("/dashboard");
@@ -33,16 +50,21 @@ export default auth((req) => {
     return NextResponse.redirect(url);
   }
 
-  // RBAC: cek VIEW berdasarkan slug dari query (?slug=...)
+  // RBAC: cek VIEW
   if (isLoggedIn && isProtected) {
     for (const rule of PAGE_VIEW_RULES) {
       if (!rule.re.test(pathname)) continue;
 
       const userId = (req.auth?.user?.userId as string) || "";
+      const mode = rule.mode ?? "any";
+      const modules = rule.modules ?? (rule.module ? [rule.module] : []);
 
-      console.log(pathname, rule.module, userId);
+      // Jika tidak ada modul terdefinisi, treat as allowed (tidak memblok)
+      if (modules.length === 0) continue;
 
-      const ok = !!userId && hasViewByPath(userId, pathname, rule.module);
+      const can = (m: string) => !!userId && hasViewByPath(userId, pathname, m);
+      const ok = mode === "all" ? modules.every(can) : modules.some(can);
+
       if (!ok) {
         const url = req.nextUrl.clone();
         url.pathname = "/403";

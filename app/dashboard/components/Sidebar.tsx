@@ -28,6 +28,78 @@ const Sidebar = () => {
               </ul>
             </li>
             <li className="mb-[16px]">
+              <h6 className="font-bold text-xs text-[#092c4c] m-[0_0_8px]">Inventory</h6>
+              <ul className="border-b border-b-[#e6eaed] pb-[16px] block">
+                <li className="mb-[4px]">
+                  <Link
+                    href="/dashboard/users"
+                    className="flex items-center font-medium text-sm relative w-full p-[8px_12px] rounded-[5px] gap-2 hover:rounded-[8px] hover:bg-[#e6f0ff] text-[#646b72] hover:text-[#0076f9]"
+                  >
+                    <GoShieldLock size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Users</span>
+                  </Link>
+                </li>
+
+                <li className="mb-[4px]">
+                  <Link
+                    href="/dashboard/roles-permissions"
+                    className="flex items-center font-medium text-sm relative w-full p-[8px_12px] rounded-[5px] gap-2 hover:rounded-[8px] hover:bg-[#e6f0ff] text-[#646b72] hover:text-[#0076f9]"
+                  >
+                    <TbJumpRope size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Roles & Permissions</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+            <li className="mb-[16px]">
+              <h6 className="font-bold text-xs text-[#092c4c] m-[0_0_8px]">Stock</h6>
+              <ul className="border-b border-b-[#e6eaed] pb-[16px] block">
+                <li className="mb-[4px]">
+                  <Link
+                    href="/dashboard/users"
+                    className="flex items-center font-medium text-sm relative w-full p-[8px_12px] rounded-[5px] gap-2 hover:rounded-[8px] hover:bg-[#e6f0ff] text-[#646b72] hover:text-[#0076f9]"
+                  >
+                    <GoShieldLock size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Users</span>
+                  </Link>
+                </li>
+
+                <li className="mb-[4px]">
+                  <Link
+                    href="/dashboard/roles-permissions"
+                    className="flex items-center font-medium text-sm relative w-full p-[8px_12px] rounded-[5px] gap-2 hover:rounded-[8px] hover:bg-[#e6f0ff] text-[#646b72] hover:text-[#0076f9]"
+                  >
+                    <TbJumpRope size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Roles & Permissions</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+            <li className="mb-[16px]">
+              <h6 className="font-bold text-xs text-[#092c4c] m-[0_0_8px]">Sales</h6>
+              <ul className="border-b border-b-[#e6eaed] pb-[16px] block">
+                <li className="mb-[4px]">
+                  <Link
+                    href="/dashboard/users"
+                    className="flex items-center font-medium text-sm relative w-full p-[8px_12px] rounded-[5px] gap-2 hover:rounded-[8px] hover:bg-[#e6f0ff] text-[#646b72] hover:text-[#0076f9]"
+                  >
+                    <GoShieldLock size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Users</span>
+                  </Link>
+                </li>
+
+                <li className="mb-[4px]">
+                  <Link
+                    href="/dashboard/roles-permissions"
+                    className="flex items-center font-medium text-sm relative w-full p-[8px_12px] rounded-[5px] gap-2 hover:rounded-[8px] hover:bg-[#e6f0ff] text-[#646b72] hover:text-[#0076f9]"
+                  >
+                    <TbJumpRope size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Roles & Permissions</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+            <li className="mb-[16px]">
               <h6 className="font-bold text-xs text-[#092c4c] m-[0_0_8px]">User Management</h6>
               <ul className="border-b border-b-[#e6eaed] pb-[16px] block">
                 <li className="mb-[4px]">
