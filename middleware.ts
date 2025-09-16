@@ -3,24 +3,16 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { hasViewByPath } from "./lib/perm/core";
 
-// blok halaman auth kalau sudah login
 const AUTH_ROUTES = ["/auth/signin", "/auth/register", "/auth/forgot-password"];
 const AFTER_LOGIN_REDIRECT = "/dashboard";
 
-// Aturan VIEW (RBAC)
-// - Gunakan `module` (string) untuk satu modul (compat lama)
-// - Atau `modules` (string[]) untuk beberapa modul
-// - `mode`: 'any' (default) = minimal 1 modul boleh, 'all' = semua modul wajib boleh
 type ViewRule = {
   re: RegExp;
-  module?: string; // legacy: satu modul
-  modules?: string[]; // baru: banyak modul
-  mode?: "any" | "all"; // default 'any'
+  module?: string;
+  modules?: string[];
+  mode?: "any" | "all";
 };
 
-// Contoh:
-// - /dashboard/users: cukup punya 'employees' (any, default)
-// - /dashboard/settings: wajib punya 'settings' DAN 'employees' (all)
 const PAGE_VIEW_RULES: ViewRule[] = [
   { re: /^\/dashboard\/users$/, module: "employees" },
   { re: /^\/dashboard\/roles-permissions$/, module: "roles" },
@@ -30,6 +22,14 @@ const PAGE_VIEW_RULES: ViewRule[] = [
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const { pathname } = req.nextUrl;
+
+  // ⬇️ Root: redirect ke auth kalau belum login, ke dashboard kalau sudah login
+  if (pathname === "/") {
+    const url = req.nextUrl.clone();
+    url.pathname = isLoggedIn ? AFTER_LOGIN_REDIRECT : "/auth/signin";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
 
   const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
   const isProtected = pathname.startsWith("/dashboard");
@@ -59,7 +59,6 @@ export default auth((req) => {
       const mode = rule.mode ?? "any";
       const modules = rule.modules ?? (rule.module ? [rule.module] : []);
 
-      // Jika tidak ada modul terdefinisi, treat as allowed (tidak memblok)
       if (modules.length === 0) continue;
 
       const can = (m: string) => !!userId && hasViewByPath(userId, pathname, m);
@@ -78,5 +77,6 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/auth/:path*", "/dashboard/:path*"],
+  // ⬇️ Sertakan "/" agar middleware jalan di root
+  matcher: ["/", "/auth/:path*", "/dashboard/:path*"],
 };
