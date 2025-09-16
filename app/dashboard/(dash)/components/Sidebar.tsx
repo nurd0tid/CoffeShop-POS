@@ -17,7 +17,7 @@ const Sidebar = () => {
     }`;
 
   return (
-    <div className="ml-0 top-0 block bg-white mt-0 z-[1001] fixed bottom-0 left-0 transition-all duration-[.5s] ease-in border-r border-r-[#e6eaed] w-[252px]  [@max-width(991.96px)]:ml-[574px] [@max-width(991.96px)]:transition-all [@max-width(991.96px)]:duration-[.5s] [@max-width(991.96px)]:ease-in [@max-width(991.96px)]:bg-[#fff] [@max-width(991.96px)]:z-[1041]">
+    <div className="ml-0 top-[0] [@min-width:992px]:top-[65px] block bg-white mt-0 z-[1001] fixed bottom-0 left-0 transition-all duration-[.5s] ease-in border-r border-r-[#e6eaed] w-[252px]  [@max-width(991.96px)]:ml-[574px] [@max-width(991.96px)]:transition-all [@max-width(991.96px)]:duration-[.5s] [@max-width(991.96px)]:ease-in [@max-width(991.96px)]:bg-[#fff] [@max-width(991.96px)]:z-[1041] [@max-width(574.98px)]:w-full">
       <div className="flex items-center p-[0_24px] h-[65px] border-b border-b-[#e6eaed] [@max-width(768px)]:hidden [@max-width(991.96px)]:hidden">
         <Link href="/dashboard">
           <Image src="/logo-wide.png" alt="Logo" width={60} height={40} className="w-[60px] align-middle border-none object-contain max-w-full h-auto" />
