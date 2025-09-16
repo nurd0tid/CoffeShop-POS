@@ -1,7 +1,7 @@
 // app/api/perm/caps/route.ts
 import { NextResponse, NextRequest } from "next/server";
 import { auth } from "@/auth";
-import { hasPerm, hasPermInCompany } from "@/lib/perm";
+import { hasPerm, hasPermInCompany } from "@/lib/perm/core";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
