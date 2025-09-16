@@ -270,12 +270,12 @@ export default function UsersTableCard(props: { companyId: string; rows?: Row[] 
     },
     components: {
       Table: {
-        headerBg: "#f7f9fc", // << warna background thead
-        headerColor: "#212b36", // warna teks header
-        headerSplitColor: "#e6e9ef", // garis pemisah kolom header
+        headerBg: "#f7f9fc",
+        headerColor: "#212b36",
+        headerSplitColor: "#e6e9ef",
         rowHoverBg: "#f7f9fc",
-        headerSortHoverBg: "#eef3fb", // saat hover ikon sort
-        headerSortActiveBg: "#e8effc", // saat kolom sedang di-sort
+        headerSortHoverBg: "#eef3fb",
+        headerSortActiveBg: "#e8effc",
       },
       Card: { headerHeight: 60, headerPadding: 16, padding: 16, lineWidth: 1, colorBorderSecondary: "#e6e9ef" },
       Button: { colorBorder: "#e6e9ef", defaultBorderColor: "#e6e9ef" },
@@ -308,9 +308,9 @@ export default function UsersTableCard(props: { companyId: string; rows?: Row[] 
         styles={{
           header: { padding: "1rem 1.25rem", borderColor: "#e6eaed" },
           body: {
-            paddingInline: 0, // mepet kiri/kanan
-            paddingTop: mounted ? 0 : 16, // saat loading ada ruang atas
-            paddingBottom: 16, // selalu ada ruang bawah -> nggak mepet
+            paddingInline: 0,
+            paddingTop: mounted ? 0 : 16,
+            paddingBottom: 16,
           },
         }}
         title={
