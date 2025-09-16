@@ -2,8 +2,8 @@ import React from "react";
 import Content from "./components/Content";
 import { auth } from "@/auth";
 import { getDefaultCompanyId } from "@/lib/data";
-import { hasPermInCompany } from "@/lib/perm";
 import { getCompanyRoleRows } from "@/lib/roles-data";
+import { hasPermInCompany } from "@/lib/perm/core";
 
 export default async function RolePermissions() {
   const session = await auth();

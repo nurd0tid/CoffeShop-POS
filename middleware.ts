@@ -1,7 +1,7 @@
 // middleware.ts
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { hasViewByPath } from "@/lib/perm";
+import { hasViewByPath } from "./lib/perm/core";
 
 // blok halaman auth kalau sudah login
 const AUTH_ROUTES = ["/auth/signin", "/auth/register", "/auth/forgot-password"];

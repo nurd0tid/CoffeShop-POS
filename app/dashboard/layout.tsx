@@ -3,6 +3,8 @@ import "../globals.css";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import Link from "next/link";
+import "@ant-design/v5-patch-for-react-19";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 export const metadata: Metadata = {
   title: "Bagi Kopi Indonesia - Dashboard",
@@ -24,8 +26,10 @@ export default function DashboardLayout({
       <Header />
       <Sidebar />
       <div className="transition-all duration-[.2s] ease-in m-[0_0_0_252px] p-[65px_0_0] relative left-0 [@max-width(991.96px)]:m-0 [@max-width(991.96px)]:p-[65px_0_0]">
-        <div className="p-[24px_24px_0] min-h-[calc(100vh-105px)]">{children}</div>
-        <div>
+        <div className="p-[24px_24px_0] min-h-[calc(100vh-105px)]">
+          <AntdRegistry>{children}</AntdRegistry>
+        </div>
+        <div className="mt-[24px]">
           <div className="flex items-center justify-between border-t border-t-[#e6eaed] bg-white p-[1rem]">
             <p className="mb-0 mt-0 text-[#212b36]">Copyright © {new Date().getFullYear()} BagiKopi</p>
             <p className="text-[#212b36]">
