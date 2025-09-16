@@ -11,8 +11,8 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import categories from "@/data/categories.json";
 import { MenuItem } from "@/types/menu";
-import InnerContent from "@/app/dashboard/pos/components/InnerContent";
-import Sidebar from "@/app/dashboard/pos/components/Sidebar";
+import InnerContent from "./InnerContent";
+import Sidebar from "./Sidebar";
 
 export default function PosContent() {
   const sliderRef = useRef<Slider | null>(null);

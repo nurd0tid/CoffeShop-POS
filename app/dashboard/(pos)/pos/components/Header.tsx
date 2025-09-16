@@ -1,5 +1,5 @@
 "use client";
-import Clock from "@/app/dashboard/pos/components/Clock";
+
 import Image from "next/image";
 import Link from "next/link";
 import React, { MouseEventHandler, useEffect, useRef, useState } from "react";
@@ -11,6 +11,7 @@ import { LuChartNoAxesCombined } from "react-icons/lu";
 import { PiCalculator } from "react-icons/pi";
 import { RiLogoutCircleLine } from "react-icons/ri";
 import { TbProgress, TbWorld } from "react-icons/tb";
+import Clock from "./Clock";
 
 const Header = () => {
   const [showProfile, setShowProfile] = useState<boolean>(false);

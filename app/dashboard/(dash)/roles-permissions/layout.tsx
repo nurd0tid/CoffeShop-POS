@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import "../../globals.css";
+import "../../../globals.css";
 
 export const metadata: Metadata = {
-  title: "Bagi Kopi Indonesia - Users Management",
-  description: "User Management for Bagi Kopi Indonesia",
+  title: "Bagi Kopi Indonesia - Role Permissions",
+  description: "Role Permissions for Bagi Kopi Indonesia",
   icons: {
     icon: "/logo.ico",
     shortcut: "/logo.ico",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DashboardUsersLayout({
+export default function DashboardRolePermLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

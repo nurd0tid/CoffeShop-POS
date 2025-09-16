@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import "../../globals.css";
-import Header from "@/app/dashboard/pos/components/Header";
+import "../../../globals.css";
+import Header from "./components/Header";
 
 export const metadata: Metadata = {
   title: "Bagi Kopi Indonesia - Point of Sale System",
