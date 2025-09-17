@@ -6,7 +6,7 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import { GoShieldLock } from "react-icons/go";
 import { RxDashboard } from "react-icons/rx";
-import { TbJumpRope } from "react-icons/tb";
+import { TbJumpRope, TbMapPinPin } from "react-icons/tb";
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -34,6 +34,18 @@ const Sidebar = () => {
                   <Link href="/dashboard" className={linkCls("/dashboard")}>
                     <RxDashboard size={14} className="text-inherit" />
                     <span className="whitespace-nowrap text-inherit">Dashboard</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+
+            <li className="mb-[16px]">
+              <h6 className="font-bold text-xs text-[#092c4c] m-[0_0_8px]">UI Interface</h6>
+              <ul className="border-b border-b-[#e6eaed] pb-[16px] block">
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/map" className={linkCls("/dashboard/map")}>
+                    <TbMapPinPin size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Map</span>
                   </Link>
                 </li>
               </ul>
