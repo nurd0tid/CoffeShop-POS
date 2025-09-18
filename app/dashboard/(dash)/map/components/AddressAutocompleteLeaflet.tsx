@@ -70,7 +70,7 @@ function allEmpty(a?: AddressDetail | null) {
   return Object.values(a).every((v) => v == null || v === "");
 }
 
-// ===== Province priority (sort aja, gak nge-filter ketat) =====
+// ===== Normalisasi & Prioritas =====
 function normalizeLight(s?: string | null) {
   const text = (s || "").toLowerCase().replace(/[.,]/g, " ");
   const stop = new Set(["provinsi", "province", "daerah", "khusus", "ibukota", "kota", "kabupaten", "regency", "special", "region", "of", "d.i.", "istimewa"]);
@@ -85,11 +85,57 @@ function prioritizeByProvince<T extends { label: string }>(items: T[], region: R
   if (!key) return items;
   const hits: T[] = [],
     rest: T[] = [];
-  for (const it of items) (normalizeLight(it.label).includes(key) ? hits : rest).push(it);
+  for (const it of items) (normalizeLight((it as any).label).includes(key) ? hits : rest).push(it);
   return hits.length ? [...hits, ...rest] : items;
 }
 
-// ===== Candidate builder (biar "jalan raya joglo", "gang sawo joglo", "rt 9" tetep kena) =====
+// ===== Filter provinsi (strict) + kota (default longgar) =====
+function normalizeAdmin(s?: string | null) {
+  return (s || "")
+    .toLowerCase()
+    .replace(/[.,]/g, " ")
+    .replace(/\b(provinsi|province|daerah|khusus|ibukota|kota|kabupaten|regency|special|region|of|d\.i\.|istimewa)\b/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+function cityCores(name?: string | null): string[] {
+  const n = normalizeAdmin(name);
+  if (!n) return [];
+  const out = new Set<string>([n]);
+  if (/\bjakarta\b/.test(n)) out.add("jakarta"); // bantu varian
+  return Array.from(out);
+}
+function itemInProvince(it: SuggestItem, provinceName?: string | null) {
+  const key = normalizeAdmin(provinceName);
+  if (!key) return true;
+  const raw = (it.raw || {}) as any;
+  const provRaw = normalizeAdmin(raw.state || raw.region || raw.state_district || "");
+  const lbl = normalizeAdmin(it.label);
+  return (provRaw && provRaw.includes(key)) || (lbl && lbl.includes(key));
+}
+function itemInCity(it: SuggestItem, cityName?: string | null) {
+  const cores = cityCores(cityName);
+  if (!cores.length) return true;
+  const raw = (it.raw || {}) as any;
+  const cityRaw = normalizeAdmin(raw.city || raw.town || raw.municipality || raw.county || "");
+  const lbl = normalizeAdmin(it.label);
+  if (cores.some((c) => cityRaw.includes(c))) return true;
+  if (cores.some((c) => lbl.includes(c))) return true;
+  return false;
+}
+function filterByProvinceCity(items: SuggestItem[], region: RegionSel, strictProvince = true, strictCity = false) {
+  // --- langkah 1: provinsi ---
+  const provMatched = items.filter((it) => itemInProvince(it, region.province?.name));
+  let keep = strictProvince ? provMatched : provMatched.length ? provMatched : items;
+  if (!keep.length) return keep;
+
+  // --- langkah 2: kota ---
+  const cityMatched = keep.filter((it) => itemInCity(it, region.city?.name));
+  keep = strictCity ? cityMatched : cityMatched.length ? cityMatched : keep;
+  return keep;
+}
+
+// ===== Candidate builder (tahan "jalan raya joglo", "gang sawo joglo", + RT/RW) =====
 function buildCandidates(q: string): string[] {
   const base = q.trim();
   if (!base) return [];
@@ -104,15 +150,12 @@ function buildCandidates(q: string): string[] {
   const set = new Set<string>();
   set.add(cleanRtRw);
 
-  // drop prefix jalan/jl/jln/gang/gg
   const noPrefix = cleanRtRw.replace(/\b(jalan|jl|jln|gang|gg)\b\.?/gi, "").trim();
   if (noPrefix) set.add(noPrefix);
 
-  // tukar dua kata terakhir (buat kasus "jalan raya joglo" vs "joglo jalan raya")
   const words = noPrefix.split(/\s+/).filter(Boolean);
   if (words.length >= 2) set.add([...words.slice(0, -2), words.at(-1)!, words.at(-2)!].join(" "));
 
-  // hilangkan kata "raya" (kadang data OSM tidak pakai "raya")
   const withoutRaya = cleanRtRw
     .replace(/\braya\b/gi, "")
     .replace(/\s{2,}/g, " ")
@@ -122,18 +165,11 @@ function buildCandidates(q: string): string[] {
   return Array.from(set);
 }
 
-// =================== FETCH WRAPPER + LOG (Photon only) ===================
-type RateState = {
-  hits: number;
-  lastStatus?: number;
-  lastMs?: number;
-  lastUrl?: string;
-  limited?: boolean;
-  lastErr?: string | null;
-};
+// =================== LOG & Photon fetch ===================
+type RateState = { hits: number; lastStatus?: number; lastMs?: number; lastUrl?: string; limited?: boolean; lastErr?: string | null };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-let lastPhotonAt = 0; // throttle sopan
-const PHOTON_GAP_MS = 250; // aman
+let lastPhotonAt = 0;
+const PHOTON_GAP_MS = 250;
 
 async function fetchPhoton(url: string, setPhotonRate: React.Dispatch<React.SetStateAction<RateState>>) {
   const now = Date.now();
@@ -160,23 +196,27 @@ async function fetchPhoton(url: string, setPhotonRate: React.Dispatch<React.SetS
   console.log(`[GEO][photon] ${res.status} ${ms}ms url=${url}`);
   const limited = res.status === 429 || res.status === 503;
   setPhotonRate((r) => ({ ...r, hits: r.hits + 1, lastStatus: res.status, lastMs: ms, lastUrl: url, limited, lastErr: null }));
-
   if (!res.ok) throw new Error(`photon HTTP ${res.status}`);
   return res;
 }
 
-// =================== Providers (Photon only) ===================
+// =================== Photon Providers ===================
+// ⬇⬇⬇ COUNTRY FILTER: ID only (kalau ada). Kalau gak ada hasil ID, baru fallback ke semua.
 async function photonSearch(query: string, limit = 10, bias?: { lat: number; lon: number }, setPhotonRate?: any): Promise<SuggestItem[]> {
-  const params = new URLSearchParams({ q: query, lang: "en", limit: String(limit), bbox: "95,-11,141,6" });
+  // tambahkan “, Indonesia” untuk bias ke negara (Photon tidak punya parameter countrycode)
+  const qForPhoton = query.includes("Indonesia") ? query : `${query}, Indonesia`;
+
+  const params = new URLSearchParams({ q: qForPhoton, lang: "en", limit: String(limit), bbox: "95,-11,141,6" });
   if (bias) {
     params.set("lat", String(bias.lat));
     params.set("lon", String(bias.lon));
   }
   const url = `https://photon.komoot.io/api/?${params.toString()}`;
+
   try {
-    const r = await fetchPhoton(url, setPhotonRate);
+    const r = await fetchPhoton(url, setPhotonRate!);
     const j = await r.json();
-    return (j.features || []).map((f: any) => {
+    const rows: SuggestItem[] = (j.features || []).map((f: any) => {
       const [lon, lat] = f.geometry.coordinates;
       const p = f.properties || {};
       const label = [
@@ -192,13 +232,18 @@ async function photonSearch(query: string, limit = 10, bias?: { lat: number; lon
         .join(", ");
       return { label, lat, lon, raw: p };
     });
+
+    // --- FILTER NEGARA: utamakan Indonesia (ID) ---
+    const idOnly = rows.filter((it) => String(it.raw?.countrycode || "").toUpperCase() === "ID");
+    return idOnly.length ? idOnly : rows; // kalau gak ada ID sama sekali, jangan kosongin total
   } catch {
     return [];
   }
 }
+
 async function photonReverse(lat: number, lon: number, setPhotonRate?: any) {
   try {
-    const r = await fetchPhoton(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&lang=en`, setPhotonRate);
+    const r = await fetchPhoton(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&lang=en`, setPhotonRate!);
     const j = await r.json();
     return j.features?.[0]?.properties || {};
   } catch {
@@ -216,7 +261,7 @@ const AddressAutocompleteLeaflet: React.FC<{
   limit?: number;
 }> = ({ region, placeholder = "Nama Jalan, Gedung, No. Rumah", defaultCenter = { lat: -2.5489, lon: 118.0149 }, onPicked, minChars = 3, limit = 12 }) => {
   const [text, setText] = useState("");
-  const deb = useDebounce(text, 300);
+  const deb = useDebounce(text, 300); // <-- hanya sekali
   const [list, setList] = useState<SuggestItem[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -225,7 +270,7 @@ const AddressAutocompleteLeaflet: React.FC<{
   const lastResultsRef = useRef<SuggestItem[]>([]);
   const justPickedRef = useRef(false);
 
-  // photon rate state
+  // log Photon
   const [photonRate, setPhotonRate] = useState<RateState>({ hits: 0 });
 
   // map
@@ -234,7 +279,7 @@ const AddressAutocompleteLeaflet: React.FC<{
   const [addr, setAddr] = useState<AddressDetail | null>(null);
   const [markerIcon, setMarkerIcon] = useState<any>(null);
 
-  // bias lat/lon: cari pusat berdasarkan region via Photon (tanpa key)
+  // bias lat/lon dari region via Photon
   const [bias, setBias] = useState<{ lat: number; lon: number } | null>(null);
   useEffect(() => {
     const seed = [region.district?.name, region.city?.name, region.province?.name].filter(Boolean).join(", ");
@@ -243,12 +288,10 @@ const AddressAutocompleteLeaflet: React.FC<{
       return;
     }
     (async () => {
-      // coba district → city → province
-      let arr = await photonSearch(region.district?.name || "", 1, undefined, setPhotonRate);
+      let arr = region.district?.name ? await photonSearch(region.district.name, 1, undefined, setPhotonRate) : [];
       if (!arr.length && region.city?.name) arr = await photonSearch(region.city.name, 1, undefined, setPhotonRate);
       if (!arr.length && region.province?.name) arr = await photonSearch(region.province.name, 1, undefined, setPhotonRate);
-      if (arr[0]) setBias({ lat: arr[0].lat, lon: arr[0].lon });
-      else setBias(null);
+      setBias(arr[0] ? { lat: arr[0].lat, lon: arr[0].lon } : null);
     })();
   }, [region.district?.name, region.city?.name, region.province?.name]);
 
@@ -281,24 +324,39 @@ const AddressAutocompleteLeaflet: React.FC<{
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  // RUN SEARCH: coba kandidat → +city → +province (tanpa “Indonesia”), hasil disortir by provinsi
+  // SEARCH: kandidat → +city → +province (semua hasil sudah ID-only), lalu filter prov/kota
   const runSearch = useCallback(
     async (qInput: string) => {
       const cands = buildCandidates(qInput);
       for (const cand of cands) {
+        // 1) cand
         let items = await photonSearch(cand, limit, bias || undefined, setPhotonRate);
-        if (items.length) return prioritizeByProvince(items, region);
+        if (items.length) {
+          const filtered = filterByProvinceCity(items, region, true /*prov strict*/, false /*kota longgar*/);
+          const best = filtered.length ? filtered : items; // fallback kalau prov mismatch
+          return prioritizeByProvince(best, region);
+        }
 
+        // 2) cand + city
         const withCity = [cand, region.city?.name].filter(Boolean).join(", ");
         if (withCity !== cand) {
           items = await photonSearch(withCity, limit, bias || undefined, setPhotonRate);
-          if (items.length) return prioritizeByProvince(items, region);
+          if (items.length) {
+            const filtered = filterByProvinceCity(items, region, true, false);
+            const best = filtered.length ? filtered : items;
+            return prioritizeByProvince(best, region);
+          }
         }
 
+        // 3) cand + province
         const withProv = [cand, region.province?.name].filter(Boolean).join(", ");
         if (withProv !== cand) {
           items = await photonSearch(withProv, limit, bias || undefined, setPhotonRate);
-          if (items.length) return prioritizeByProvince(items, region);
+          if (items.length) {
+            const filtered = filterByProvinceCity(items, region, true, false);
+            const best = filtered.length ? filtered : items;
+            return prioritizeByProvince(best, region);
+          }
         }
       }
       return [];
@@ -342,7 +400,6 @@ const AddressAutocompleteLeaflet: React.FC<{
     setOpen(false);
     justPickedRef.current = true;
 
-    // detail dari raw Photon (kalau ada), lalu fallback reverse Photon
     let detail: AddressDetail | null = s.raw ? mapPropsToAddress(s.raw) : null;
     if (allEmpty(detail)) {
       const base = await photonReverse(s.lat, s.lon, setPhotonRate);
@@ -403,11 +460,19 @@ const AddressAutocompleteLeaflet: React.FC<{
           className="w-full resize-y rounded-md border px-3 py-2 outline-none"
         />
         {open && (
-          <div className="absolute left-0 right-0 top-full z-[1000] mt-2 maxHeight-[60vh] max-h-[60vh] overflow-auto rounded-md border bg-white shadow-lg">
-            {/* ringkasan log Photon */}
+          <div className="absolute left-0 right-0 top-full z-[1000] mt-2 max-h-[60vh] overflow-auto rounded-md border bg-white shadow-lg">
+            {/* ringkasan log Photon + filter */}
             <div className="px-3 py-1 text-[11px] text-gray-500 border-b">
               Photon: {photonRate.lastStatus ?? "-"} ({photonRate.lastMs ?? "-"}ms) • hit={photonRate.hits}
-              {photonRate.limited && <span className="ml-2 text-amber-700">— rate-limited, jeda sejenak</span>}
+              {photonRate.limited && <span className="ml-2 text-amber-700">— rate-limited</span>}
+              {photonRate.lastUrl && (
+                <span className="ml-2 truncate" title={photonRate.lastUrl}>
+                  URL: {photonRate.lastUrl}
+                </span>
+              )}
+              <span className="ml-3">Prov: {region.province?.name ?? "-"}</span>
+              <span className="ml-2">Kota: {region.city?.name ?? "-"}</span>
+              <span className="ml-2">Negara: ID only</span>
             </div>
 
             {loading && <div className="p-3 text-sm text-gray-500">Mencari…</div>}
