@@ -49,28 +49,78 @@ function useDebounce<T>(value: T, delay = 300) {
 }
 
 function mapPropsToAddress(p: any): AddressDetail {
+  // kelurahan – tambah lebih banyak kandidat (hindari locality yang sebenarnya RT/RW)
+  const loc = String(p.locality || "");
+  const likelyRtRw = /\br[\s]*t\b|\br[\s]*w\b/i.test(loc);
+  const kelurahan = p.suburb || p.neighbourhood || p.village || p.hamlet || p.quarter || p.ward || (!likelyRtRw ? p.locality : null);
+
+  const kecamatan = p.district || p.city_district || p.subdistrict || null;
+  const kota = p.city || p.town || p.municipality || p.county || null;
+  const provinsi = p.state || p.region || p.state_district || null;
+
   return {
-    jalan: [p.street, p.housenumber].filter(Boolean).join(" ") || null,
-    kelurahan: p.suburb || p.neighbourhood || p.village || null,
-    kecamatan: p.district || null,
-    kota: p.city || p.town || p.municipality || null,
-    provinsi: p.state || null,
+    jalan: [p.street, p.housenumber].filter(Boolean).join(" ") || p.name || null,
+    kelurahan: kelurahan || null,
+    kecamatan,
+    kota,
+    provinsi,
     kodepos: p.postcode || null,
     rt: p.rt || p["addr:rt"] || null,
     rw: p.rw || p["addr:rw"] || null,
   };
 }
-function patchRtRwFromText(addr: AddressDetail, text: string): AddressDetail {
-  const rt = addr.rt ?? text.match(/\bRT[.\s-]*([0-9]{1,3})\b/i)?.[1] ?? null;
-  const rw = addr.rw ?? text.match(/\bRW[.\s-]*([0-9]{1,3})\b/i)?.[1] ?? null;
-  return { ...addr, rt, rw };
-}
+
 function allEmpty(a?: AddressDetail | null) {
   if (!a) return true;
   return Object.values(a).every((v) => v == null || v === "");
 }
 
-// ===== Normalisasi & Prioritas =====
+/* ---------- RT/RW helpers ---------- */
+function extractRtRw(text: string) {
+  const t = text || "";
+  // tangkap pola campuran: RT.004, R T 09, RT04/08, dll
+  const rt =
+    t.match(/\br\s*\.?\s*t\s*[:.\-\/ ]*\s*0*([0-9]{1,3})\b/i)?.[1] ||
+    t.match(/\brt\s*[:.\-\/ ]*\s*0*([0-9]{1,3})\b/i)?.[1] ||
+    t.match(/\b0*([0-9]{1,3})\b(?=\/\s*rw)/i)?.[1] ||
+    null;
+
+  const rw =
+    t.match(/\br\s*\.?\s*w\s*[:.\-\/ ]*\s*0*([0-9]{1,3})\b/i)?.[1] ||
+    t.match(/\brw\s*[:.\-\/ ]*\s*0*([0-9]{1,3})\b/i)?.[1] ||
+    t.match(/(?<=rt\s*[:.\-\/ ]*\s*0*[0-9]{1,3}\s*\/\s*)0*([0-9]{1,3})\b/i)?.[1] ||
+    null;
+
+  return { rt, rw };
+}
+
+function enrichRtRw(addr: AddressDetail, sources: Array<string | undefined | null>): AddressDetail {
+  let out = { ...addr };
+  for (const s of sources) {
+    if (!s) continue;
+    const { rt, rw } = extractRtRw(String(s));
+    if (!out.rt && rt) out.rt = rt;
+    if (!out.rw && rw) out.rw = rw;
+    if (out.rt && out.rw) break;
+  }
+  return out;
+}
+
+/* ---------- Postal helpers (STRICT 5-digit ID) ---------- */
+function extractPostal5FromText(s?: string | null): string | null {
+  if (!s) return null;
+  const m = String(s).match(/(^|\D)(\d{5})(\D|$)/);
+  return m ? m[2] : null;
+}
+function normalizePostal5(s?: string | null): string | null {
+  const d = extractPostal5FromText(s);
+  return d ? d : null;
+}
+function itemPostal5(it: SuggestItem): string | null {
+  return normalizePostal5(it.raw?.postcode) || normalizePostal5(it.label) || normalizePostal5(it.raw?.name) || null;
+}
+
+/* ---------- Normalisasi & prioritas ---------- */
 function normalizeLight(s?: string | null) {
   const text = (s || "").toLowerCase().replace(/[.,]/g, " ");
   const stop = new Set(["provinsi", "province", "daerah", "khusus", "ibukota", "kota", "kabupaten", "regency", "special", "region", "of", "d.i.", "istimewa"]);
@@ -80,16 +130,6 @@ function normalizeLight(s?: string | null) {
     .join(" ")
     .trim();
 }
-function prioritizeByProvince<T extends { label: string }>(items: T[], region: RegionSel): T[] {
-  const key = normalizeLight(region.province?.name);
-  if (!key) return items;
-  const hits: T[] = [],
-    rest: T[] = [];
-  for (const it of items) (normalizeLight((it as any).label).includes(key) ? hits : rest).push(it);
-  return hits.length ? [...hits, ...rest] : items;
-}
-
-// ===== Filter provinsi (strict) + kota (default longgar) =====
 function normalizeAdmin(s?: string | null) {
   return (s || "")
     .toLowerCase()
@@ -98,11 +138,21 @@ function normalizeAdmin(s?: string | null) {
     .replace(/\s{2,}/g, " ")
     .trim();
 }
+function prioritizeByProvince<T extends { label: string }>(items: T[], region: RegionSel): T[] {
+  const key = normalizeLight(region.province?.name);
+  if (!key) return items;
+  const hits: T[] = [];
+  const rest: T[] = [];
+  for (const it of items) (normalizeLight((it as any).label).includes(key) ? hits : rest).push(it);
+  return hits.length ? [...hits, ...rest] : items;
+}
+
+/* ---------- Filter prov + city + district + postal (postal STRICT) ---------- */
 function cityCores(name?: string | null): string[] {
   const n = normalizeAdmin(name);
   if (!n) return [];
   const out = new Set<string>([n]);
-  if (/\bjakarta\b/.test(n)) out.add("jakarta"); // bantu varian
+  if (/\bjakarta\b/.test(n)) out.add("jakarta");
   return Array.from(out);
 }
 function itemInProvince(it: SuggestItem, provinceName?: string | null) {
@@ -119,23 +169,44 @@ function itemInCity(it: SuggestItem, cityName?: string | null) {
   const raw = (it.raw || {}) as any;
   const cityRaw = normalizeAdmin(raw.city || raw.town || raw.municipality || raw.county || "");
   const lbl = normalizeAdmin(it.label);
-  if (cores.some((c) => cityRaw.includes(c))) return true;
-  if (cores.some((c) => lbl.includes(c))) return true;
-  return false;
+  return cores.some((c) => cityRaw.includes(c) || lbl.includes(c));
 }
-function filterByProvinceCity(items: SuggestItem[], region: RegionSel, strictProvince = true, strictCity = false) {
-  // --- langkah 1: provinsi ---
-  const provMatched = items.filter((it) => itemInProvince(it, region.province?.name));
-  let keep = strictProvince ? provMatched : provMatched.length ? provMatched : items;
-  if (!keep.length) return keep;
+function itemInDistrict(it: SuggestItem, districtName?: string | null) {
+  const key = normalizeAdmin(districtName);
+  if (!key) return true;
+  const raw = (it.raw || {}) as any;
+  const dRaw = normalizeAdmin(raw.district || raw.city_district || raw.subdistrict || "");
+  const lbl = normalizeAdmin(it.label);
+  return (dRaw && dRaw.includes(key)) || (lbl && lbl.includes(key));
+}
+function itemInPostcodeStrict(it: SuggestItem, postal?: string | null) {
+  const want = normalizePostal5(postal);
+  if (!want) return true;
+  const got = itemPostal5(it);
+  return !!got && got === want;
+}
 
-  // --- langkah 2: kota ---
-  const cityMatched = keep.filter((it) => itemInCity(it, region.city?.name));
-  keep = strictCity ? cityMatched : cityMatched.length ? cityMatched : keep;
+function filterByRegion(items: SuggestItem[], region: RegionSel) {
+  let keep = items;
+
+  const prov = keep.filter((it) => itemInProvince(it, region.province?.name));
+  keep = prov.length ? prov : keep;
+
+  const city = keep.filter((it) => itemInCity(it, region.city?.name));
+  keep = city.length ? city : keep;
+
+  const dist = keep.filter((it) => itemInDistrict(it, region.district?.name));
+  keep = dist.length ? dist : keep;
+
+  // STRICT postal (kalau ada)
+  if (region.postalCode && region.postalCode.trim()) {
+    keep = keep.filter((it) => itemInPostcodeStrict(it, region.postalCode));
+  }
+
   return keep;
 }
 
-// ===== Candidate builder (tahan "jalan raya joglo", "gang sawo joglo", + RT/RW) =====
+/* ---------- Candidate builder (jalan raya/gang + RT/RW friendly) ---------- */
 function buildCandidates(q: string): string[] {
   const base = q.trim();
   if (!base) return [];
@@ -165,7 +236,7 @@ function buildCandidates(q: string): string[] {
   return Array.from(set);
 }
 
-// =================== LOG & Photon fetch ===================
+/* ---------- LOG & Photon fetch ---------- */
 type RateState = { hits: number; lastStatus?: number; lastMs?: number; lastUrl?: string; limited?: boolean; lastErr?: string | null };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 let lastPhotonAt = 0;
@@ -200,10 +271,9 @@ async function fetchPhoton(url: string, setPhotonRate: React.Dispatch<React.SetS
   return res;
 }
 
-// =================== Photon Providers ===================
-// ⬇⬇⬇ COUNTRY FILTER: ID only (kalau ada). Kalau gak ada hasil ID, baru fallback ke semua.
+/* ---------- Photon (ID-first) ---------- */
 async function photonSearch(query: string, limit = 10, bias?: { lat: number; lon: number }, setPhotonRate?: any): Promise<SuggestItem[]> {
-  // tambahkan “, Indonesia” untuk bias ke negara (Photon tidak punya parameter countrycode)
+  // Bias ke Indonesia
   const qForPhoton = query.includes("Indonesia") ? query : `${query}, Indonesia`;
 
   const params = new URLSearchParams({ q: qForPhoton, lang: "en", limit: String(limit), bbox: "95,-11,141,6" });
@@ -222,9 +292,9 @@ async function photonSearch(query: string, limit = 10, bias?: { lat: number; lon
       const label = [
         p.name,
         p.street && p.housenumber ? `${p.street} ${p.housenumber}` : p.street,
-        p.suburb || p.neighbourhood || p.village,
-        p.city || p.town || p.municipality,
-        p.district,
+        p.suburb || p.neighbourhood || p.village || p.hamlet || p.quarter || p.locality || p.ward,
+        p.city || p.town || p.municipality || p.county,
+        p.district || p.city_district || p.subdistrict,
         p.state,
         p.postcode,
       ]
@@ -233,9 +303,8 @@ async function photonSearch(query: string, limit = 10, bias?: { lat: number; lon
       return { label, lat, lon, raw: p };
     });
 
-    // --- FILTER NEGARA: utamakan Indonesia (ID) ---
     const idOnly = rows.filter((it) => String(it.raw?.countrycode || "").toUpperCase() === "ID");
-    return idOnly.length ? idOnly : rows; // kalau gak ada ID sama sekali, jangan kosongin total
+    return idOnly.length ? idOnly : rows;
   } catch {
     return [];
   }
@@ -249,6 +318,40 @@ async function photonReverse(lat: number, lon: number, setPhotonRate?: any) {
   } catch {
     return {};
   }
+}
+
+/* ---------- Nominatim reverse (lebih detail) ---------- */
+async function reverseNominatim(lat: number, lon: number) {
+  try {
+    // minta addressdetails dan zoom tinggi biar granular
+    const r = await fetch(`https://geocode.maps.co/reverse?lat=${lat}&lon=${lon}&addressdetails=1&zoom=18&format=jsonv2`);
+    const j = await r.json();
+    const a = j.address || {};
+    return {
+      street: a.road || a.residential || a.pedestrian || a.path,
+      housenumber: a.house_number,
+      suburb: a.suburb || a.neighbourhood || a.village || a.hamlet || a.quarter || a.locality || a.ward,
+      district: a.city_district || a.district || a.subdistrict,
+      city: a.city || a.town || a.municipality || a.county,
+      state: a.state || a.region || a.state_district,
+      postcode: a.postcode,
+      rt: a.rt || a["addr:rt"],
+      rw: a.rw || a["addr:rw"],
+      display_name: j.display_name,
+      name: j.name,
+    };
+  } catch {
+    return {};
+  }
+}
+
+/* ---------- Heuristic kelurahan dari label (kalau tetap kosong) ---------- */
+function kelFromLabel(label: string, already?: string | null) {
+  if (already) return already;
+  const parts = label.split(",").map((s) => s.trim());
+  // ambil bagian kecil di awal yang bukan jalan panjang
+  const pick = parts.find((p) => !/jalan|jl|jln|highway|tol|arteri|raya/i.test(p) && p.length <= 40);
+  return pick || null;
 }
 
 // =================== Component ===================
@@ -324,36 +427,49 @@ const AddressAutocompleteLeaflet: React.FC<{
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  // SEARCH: kandidat → +city → +province (semua hasil sudah ID-only), lalu filter prov/kota
+  // SEARCH: kandidat → bias postal (jika ada) → +city → +province, lalu filter by region (postal STRICT)
   const runSearch = useCallback(
     async (qInput: string) => {
       const cands = buildCandidates(qInput);
+      const wantPostal = normalizePostal5(region.postalCode);
+
       for (const cand of cands) {
+        // 0) kalau ada kode pos: cobain cand + kode pos (bias keras)
+        if (wantPostal) {
+          const q0 = `${cand}, ${wantPostal}`;
+          let items0 = await photonSearch(q0, limit, bias || undefined, setPhotonRate);
+          if (items0.length) {
+            const f0 = filterByRegion(items0, region);
+            const b0 = f0.length ? f0 : items0;
+            return prioritizeByProvince(b0, region);
+          }
+        }
+
         // 1) cand
         let items = await photonSearch(cand, limit, bias || undefined, setPhotonRate);
         if (items.length) {
-          const filtered = filterByProvinceCity(items, region, true /*prov strict*/, false /*kota longgar*/);
-          const best = filtered.length ? filtered : items; // fallback kalau prov mismatch
+          const filtered = filterByRegion(items, region);
+          const best = filtered.length ? filtered : items;
           return prioritizeByProvince(best, region);
         }
 
-        // 2) cand + city
-        const withCity = [cand, region.city?.name].filter(Boolean).join(", ");
+        // 2) cand + city (+postal kalau ada)
+        const withCity = [cand, region.city?.name, wantPostal || ""].filter(Boolean).join(", ");
         if (withCity !== cand) {
           items = await photonSearch(withCity, limit, bias || undefined, setPhotonRate);
           if (items.length) {
-            const filtered = filterByProvinceCity(items, region, true, false);
+            const filtered = filterByRegion(items, region);
             const best = filtered.length ? filtered : items;
             return prioritizeByProvince(best, region);
           }
         }
 
-        // 3) cand + province
-        const withProv = [cand, region.province?.name].filter(Boolean).join(", ");
+        // 3) cand + province (+postal kalau ada)
+        const withProv = [cand, region.province?.name, wantPostal || ""].filter(Boolean).join(", ");
         if (withProv !== cand) {
           items = await photonSearch(withProv, limit, bias || undefined, setPhotonRate);
           if (items.length) {
-            const filtered = filterByProvinceCity(items, region, true, false);
+            const filtered = filterByRegion(items, region);
             const best = filtered.length ? filtered : items;
             return prioritizeByProvince(best, region);
           }
@@ -400,12 +516,42 @@ const AddressAutocompleteLeaflet: React.FC<{
     setOpen(false);
     justPickedRef.current = true;
 
+    // 1) detail dari raw Photon
     let detail: AddressDetail | null = s.raw ? mapPropsToAddress(s.raw) : null;
+
+    // 2) Photon reverse kalau masih kosong
     if (allEmpty(detail)) {
       const base = await photonReverse(s.lat, s.lon, setPhotonRate);
       detail = mapPropsToAddress(base);
     }
-    detail = patchRtRwFromText(detail!, s.label);
+
+    // 3) Jika ada kolom kosong → Nominatim reverse (sekali), lalu merge
+    if (!detail?.rt || !detail?.rw || !detail?.kelurahan || !detail?.kecamatan || !detail?.kota || !detail?.kodepos) {
+      const nom = await reverseNominatim(s.lat, s.lon);
+      if (Object.keys(nom).length) {
+        const nomAddr = mapPropsToAddress(nom);
+        detail = {
+          jalan: detail?.jalan || nomAddr.jalan,
+          kelurahan: detail?.kelurahan || nomAddr.kelurahan,
+          kecamatan: detail?.kecamatan || nomAddr.kecamatan,
+          kota: detail?.kota || nomAddr.kota,
+          provinsi: detail?.provinsi || nomAddr.provinsi,
+          kodepos: detail?.kodepos || nomAddr.kodepos,
+          rt: detail?.rt || nomAddr.rt,
+          rw: detail?.rw || nomAddr.rw,
+        };
+        // RT/RW dari display_name nominatim
+        detail = enrichRtRw(detail, [nom.display_name, nom.name]);
+      }
+    }
+
+    // 4) Tambal RT/RW terakhir dari label, text yang kamu ketik, dan raw Photon
+    detail = enrichRtRw(detail!, [s.label, text, s.raw?.name, s.raw?.locality, s.raw?.street]);
+
+    // 5) Kalau kelurahan masih kosong, coba tarik dari label
+    if (!detail.kelurahan) {
+      detail.kelurahan = kelFromLabel(s.label, detail.kelurahan);
+    }
 
     setAddr(detail!);
     mapRef.current?.flyTo([s.lat, s.lon], 16, { duration: 0.8 });
@@ -472,6 +618,8 @@ const AddressAutocompleteLeaflet: React.FC<{
               )}
               <span className="ml-3">Prov: {region.province?.name ?? "-"}</span>
               <span className="ml-2">Kota: {region.city?.name ?? "-"}</span>
+              <span className="ml-2">Kec: {region.district?.name ?? "-"}</span>
+              <span className="ml-2">KodePos (STRICT): {region.postalCode ?? "-"}</span>
               <span className="ml-2">Negara: ID only</span>
             </div>
 
@@ -516,6 +664,9 @@ const AddressAutocompleteLeaflet: React.FC<{
           </div>
           <div>
             <b>RT/RW</b>: {addr.rt ?? "-"} / {addr.rw ?? "-"}
+          </div>
+          <div>
+            <b>Koordinat</b>: {coords ? `${coords.lat.toFixed(6)}, ${coords.lon.toFixed(6)}` : "-"}
           </div>
         </div>
       )}
