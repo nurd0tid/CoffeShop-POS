@@ -21,21 +21,23 @@ const MapRefBinder: React.FC<{ onInit: (map: LeafletMap) => void }> = ({ onInit 
 
 // ===== Types =====
 type RegionSel = {
-  province?: { id: string; name: string };
-  city?: { id: string; name: string };
-  district?: { id: string; name: string };
+  province?: { id: string; name: string }; // Provinsi
+  city?: { id: string; name: string }; // Kota/Kabupaten
+  district?: { id: string; name: string }; // Kecamatan
+  village?: { id: string; name: string }; // ⬅️ Kelurahan (baru)
   postalCode?: string | null;
 };
+
 type SuggestItem = { label: string; lat: number; lon: number; raw?: any };
 type AddressDetail = {
   jalan: string | null;
-  kelurahan: string | null;
-  kecamatan: string | null;
-  kota: string | null;
-  provinsi: string | null;
-  kodepos: string | null;
-  rt: string | null;
-  rw: string | null;
+  kelurahan: string | null; // dari props.region.village
+  kecamatan: string | null; // dari props.region.district
+  kota: string | null; // dari props.region.city
+  provinsi: string | null; // dari props.region.province
+  kodepos: string | null; // dari result (fallback ke props)
+  rt: string | null; // input user
+  rw: string | null; // input user
 };
 
 // ===== Utils =====
@@ -48,76 +50,9 @@ function useDebounce<T>(value: T, delay = 300) {
   return v;
 }
 
-function mapPropsToAddress(p: any): AddressDetail {
-  // kelurahan – tambah lebih banyak kandidat (hindari locality yang sebenarnya RT/RW)
-  const loc = String(p.locality || "");
-  const likelyRtRw = /\br[\s]*t\b|\br[\s]*w\b/i.test(loc);
-  const kelurahan = p.suburb || p.neighbourhood || p.village || p.hamlet || p.quarter || p.ward || (!likelyRtRw ? p.locality : null);
-
-  const kecamatan = p.district || p.city_district || p.subdistrict || null;
-  const kota = p.city || p.town || p.municipality || p.county || null;
-  const provinsi = p.state || p.region || p.state_district || null;
-
-  return {
-    jalan: [p.street, p.housenumber].filter(Boolean).join(" ") || p.name || null,
-    kelurahan: kelurahan || null,
-    kecamatan,
-    kota,
-    provinsi,
-    kodepos: p.postcode || null,
-    rt: p.rt || p["addr:rt"] || null,
-    rw: p.rw || p["addr:rw"] || null,
-  };
-}
-
-function allEmpty(a?: AddressDetail | null) {
-  if (!a) return true;
-  return Object.values(a).every((v) => v == null || v === "");
-}
-
-/* ---------- RT/RW helpers ---------- */
-function extractRtRw(text: string) {
-  const t = text || "";
-  // tangkap pola campuran: RT.004, R T 09, RT04/08, dll
-  const rt =
-    t.match(/\br\s*\.?\s*t\s*[:.\-\/ ]*\s*0*([0-9]{1,3})\b/i)?.[1] ||
-    t.match(/\brt\s*[:.\-\/ ]*\s*0*([0-9]{1,3})\b/i)?.[1] ||
-    t.match(/\b0*([0-9]{1,3})\b(?=\/\s*rw)/i)?.[1] ||
-    null;
-
-  const rw =
-    t.match(/\br\s*\.?\s*w\s*[:.\-\/ ]*\s*0*([0-9]{1,3})\b/i)?.[1] ||
-    t.match(/\brw\s*[:.\-\/ ]*\s*0*([0-9]{1,3})\b/i)?.[1] ||
-    t.match(/(?<=rt\s*[:.\-\/ ]*\s*0*[0-9]{1,3}\s*\/\s*)0*([0-9]{1,3})\b/i)?.[1] ||
-    null;
-
-  return { rt, rw };
-}
-
-function enrichRtRw(addr: AddressDetail, sources: Array<string | undefined | null>): AddressDetail {
-  let out = { ...addr };
-  for (const s of sources) {
-    if (!s) continue;
-    const { rt, rw } = extractRtRw(String(s));
-    if (!out.rt && rt) out.rt = rt;
-    if (!out.rw && rw) out.rw = rw;
-    if (out.rt && out.rw) break;
-  }
-  return out;
-}
-
-/* ---------- Postal helpers (STRICT 5-digit ID) ---------- */
-function extractPostal5FromText(s?: string | null): string | null {
-  if (!s) return null;
-  const m = String(s).match(/(^|\D)(\d{5})(\D|$)/);
-  return m ? m[2] : null;
-}
-function normalizePostal5(s?: string | null): string | null {
-  const d = extractPostal5FromText(s);
-  return d ? d : null;
-}
-function itemPostal5(it: SuggestItem): string | null {
-  return normalizePostal5(it.raw?.postcode) || normalizePostal5(it.label) || normalizePostal5(it.raw?.name) || null;
+function parsePostcodeFromText(text: string): string | null {
+  const m = text.match(/\b\d{5}\b/);
+  return m ? m[0] : null;
 }
 
 /* ---------- Normalisasi & prioritas ---------- */
@@ -141,13 +76,25 @@ function normalizeAdmin(s?: string | null) {
 function prioritizeByProvince<T extends { label: string }>(items: T[], region: RegionSel): T[] {
   const key = normalizeLight(region.province?.name);
   if (!key) return items;
-  const hits: T[] = [];
-  const rest: T[] = [];
+  const hits: T[] = [],
+    rest: T[] = [];
   for (const it of items) (normalizeLight((it as any).label).includes(key) ? hits : rest).push(it);
   return hits.length ? [...hits, ...rest] : items;
 }
 
 /* ---------- Filter prov + city + district + postal (postal STRICT) ---------- */
+function extractPostal5FromText(s?: string | null): string | null {
+  if (!s) return null;
+  const m = String(s).match(/(^|\D)(\d{5})(\D|$)/);
+  return m ? m[2] : null;
+}
+function normalizePostal5(s?: string | null): string | null {
+  const d = extractPostal5FromText(s);
+  return d ? d : null;
+}
+function itemPostal5(it: SuggestItem): string | null {
+  return normalizePostal5(it.raw?.postcode) || normalizePostal5(it.label) || normalizePostal5(it.raw?.name) || null;
+}
 function cityCores(name?: string | null): string[] {
   const n = normalizeAdmin(name);
   if (!n) return [];
@@ -185,7 +132,6 @@ function itemInPostcodeStrict(it: SuggestItem, postal?: string | null) {
   const got = itemPostal5(it);
   return !!got && got === want;
 }
-
 function filterByRegion(items: SuggestItem[], region: RegionSel) {
   let keep = items;
 
@@ -198,7 +144,6 @@ function filterByRegion(items: SuggestItem[], region: RegionSel) {
   const dist = keep.filter((it) => itemInDistrict(it, region.district?.name));
   keep = dist.length ? dist : keep;
 
-  // STRICT postal (kalau ada)
   if (region.postalCode && region.postalCode.trim()) {
     keep = keep.filter((it) => itemInPostcodeStrict(it, region.postalCode));
   }
@@ -271,11 +216,36 @@ async function fetchPhoton(url: string, setPhotonRate: React.Dispatch<React.SetS
   return res;
 }
 
-/* ---------- Photon (ID-first) ---------- */
-async function photonSearch(query: string, limit = 10, bias?: { lat: number; lon: number }, setPhotonRate?: any): Promise<SuggestItem[]> {
-  // Bias ke Indonesia
-  const qForPhoton = query.includes("Indonesia") ? query : `${query}, Indonesia`;
+/* ---------- Helper: bersihin part RT/RW & dedup + drop state ---------- */
+function isRtRwPart(part: string): boolean {
+  const t = part.trim();
+  // contoh: "RW 03", "RT 09", "R T.04", "RW-07", "RT04/RW08"
+  if (/^(r\s*\.?\s*t|rt)\b/i.test(t)) return true;
+  if (/^(r\s*\.?\s*w|rw)\b/i.test(t)) return true;
+  // beberapa locality OSM pakai "RW 03" persis
+  if (/^rw\s*\d{1,3}$/i.test(t)) return true;
+  if (/^rt\s*\d{1,3}$/i.test(t)) return true;
+  return false;
+}
+function cleanLabelParts(parts: Array<string | undefined | null>): string {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const p of parts) {
+    if (!p) continue;
+    const s = String(p).trim();
+    if (!s) continue;
+    if (isRtRwPart(s)) continue; // buang RT/RW
+    const key = s.toLowerCase();
+    if (seen.has(key)) continue; // dedup
+    seen.add(key);
+    out.push(s);
+  }
+  return out.join(", ");
+}
 
+/* ---------- Photon (ID-first) + label cleaned ---------- */
+async function photonSearch(query: string, limit = 10, bias?: { lat: number; lon: number }, setPhotonRate?: any): Promise<SuggestItem[]> {
+  const qForPhoton = query.includes("Indonesia") ? query : `${query}, Indonesia`;
   const params = new URLSearchParams({ q: qForPhoton, lang: "en", limit: String(limit), bbox: "95,-11,141,6" });
   if (bias) {
     params.set("lat", String(bias.lat));
@@ -289,17 +259,19 @@ async function photonSearch(query: string, limit = 10, bias?: { lat: number; lon
     const rows: SuggestItem[] = (j.features || []).map((f: any) => {
       const [lon, lat] = f.geometry.coordinates;
       const p = f.properties || {};
-      const label = [
+
+      // ⚠️ note: tidak pakai p.state ke label (hindari "Java")
+      // dan buang part RT/RW dari locality/ward/etc
+      const label = cleanLabelParts([
         p.name,
         p.street && p.housenumber ? `${p.street} ${p.housenumber}` : p.street,
-        p.suburb || p.neighbourhood || p.village || p.hamlet || p.quarter || p.locality || p.ward,
+        p.suburb || p.neighbourhood || p.village || p.hamlet || p.quarter || p.locality || p.ward, // akan dibersihkan RT/RW
         p.city || p.town || p.municipality || p.county,
         p.district || p.city_district || p.subdistrict,
-        p.state,
+        // p.state,  // sengaja di-drop agar "Java" tidak muncul
         p.postcode,
-      ]
-        .filter(Boolean)
-        .join(", ");
+      ]);
+
       return { label, lat, lon, raw: p };
     });
 
@@ -309,7 +281,6 @@ async function photonSearch(query: string, limit = 10, bias?: { lat: number; lon
     return [];
   }
 }
-
 async function photonReverse(lat: number, lon: number, setPhotonRate?: any) {
   try {
     const r = await fetchPhoton(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&lang=en`, setPhotonRate!);
@@ -318,40 +289,6 @@ async function photonReverse(lat: number, lon: number, setPhotonRate?: any) {
   } catch {
     return {};
   }
-}
-
-/* ---------- Nominatim reverse (lebih detail) ---------- */
-async function reverseNominatim(lat: number, lon: number) {
-  try {
-    // minta addressdetails dan zoom tinggi biar granular
-    const r = await fetch(`https://geocode.maps.co/reverse?lat=${lat}&lon=${lon}&addressdetails=1&zoom=18&format=jsonv2`);
-    const j = await r.json();
-    const a = j.address || {};
-    return {
-      street: a.road || a.residential || a.pedestrian || a.path,
-      housenumber: a.house_number,
-      suburb: a.suburb || a.neighbourhood || a.village || a.hamlet || a.quarter || a.locality || a.ward,
-      district: a.city_district || a.district || a.subdistrict,
-      city: a.city || a.town || a.municipality || a.county,
-      state: a.state || a.region || a.state_district,
-      postcode: a.postcode,
-      rt: a.rt || a["addr:rt"],
-      rw: a.rw || a["addr:rw"],
-      display_name: j.display_name,
-      name: j.name,
-    };
-  } catch {
-    return {};
-  }
-}
-
-/* ---------- Heuristic kelurahan dari label (kalau tetap kosong) ---------- */
-function kelFromLabel(label: string, already?: string | null) {
-  if (already) return already;
-  const parts = label.split(",").map((s) => s.trim());
-  // ambil bagian kecil di awal yang bukan jalan panjang
-  const pick = parts.find((p) => !/jalan|jl|jln|highway|tol|arteri|raya/i.test(p) && p.length <= 40);
-  return pick || null;
 }
 
 // =================== Component ===================
@@ -364,7 +301,7 @@ const AddressAutocompleteLeaflet: React.FC<{
   limit?: number;
 }> = ({ region, placeholder = "Nama Jalan, Gedung, No. Rumah", defaultCenter = { lat: -2.5489, lon: 118.0149 }, onPicked, minChars = 3, limit = 12 }) => {
   const [text, setText] = useState("");
-  const deb = useDebounce(text, 300); // <-- hanya sekali
+  const deb = useDebounce(text, 300); // satu-satunya deb
   const [list, setList] = useState<SuggestItem[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -381,6 +318,10 @@ const AddressAutocompleteLeaflet: React.FC<{
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [addr, setAddr] = useState<AddressDetail | null>(null);
   const [markerIcon, setMarkerIcon] = useState<any>(null);
+
+  // RT/RW murni dari input user
+  const [rtInput, setRtInput] = useState("");
+  const [rwInput, setRwInput] = useState("");
 
   // bias lat/lon dari region via Photon
   const [bias, setBias] = useState<{ lat: number; lon: number } | null>(null);
@@ -427,14 +368,14 @@ const AddressAutocompleteLeaflet: React.FC<{
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  // SEARCH: kandidat → bias postal (jika ada) → +city → +province, lalu filter by region (postal STRICT)
+  // SEARCH: kandidat → (opsional +postal untuk bias) → +city → +province, lalu filter by region (postal STRICT)
   const runSearch = useCallback(
     async (qInput: string) => {
       const cands = buildCandidates(qInput);
       const wantPostal = normalizePostal5(region.postalCode);
 
       for (const cand of cands) {
-        // 0) kalau ada kode pos: cobain cand + kode pos (bias keras)
+        // 0) jika ada kode pos → bias keras
         if (wantPostal) {
           const q0 = `${cand}, ${wantPostal}`;
           let items0 = await photonSearch(q0, limit, bias || undefined, setPhotonRate);
@@ -516,46 +457,28 @@ const AddressAutocompleteLeaflet: React.FC<{
     setOpen(false);
     justPickedRef.current = true;
 
-    // 1) detail dari raw Photon
-    let detail: AddressDetail | null = s.raw ? mapPropsToAddress(s.raw) : null;
-
-    // 2) Photon reverse kalau masih kosong
-    if (allEmpty(detail)) {
+    // Kode pos dari raw/label, fallback region
+    let kode = s.raw?.postcode || parsePostcodeFromText(s.label) || region.postalCode || null;
+    if (!kode) {
       const base = await photonReverse(s.lat, s.lon, setPhotonRate);
-      detail = mapPropsToAddress(base);
+      if (base?.postcode) kode = base.postcode;
     }
 
-    // 3) Jika ada kolom kosong → Nominatim reverse (sekali), lalu merge
-    if (!detail?.rt || !detail?.rw || !detail?.kelurahan || !detail?.kecamatan || !detail?.kota || !detail?.kodepos) {
-      const nom = await reverseNominatim(s.lat, s.lon);
-      if (Object.keys(nom).length) {
-        const nomAddr = mapPropsToAddress(nom);
-        detail = {
-          jalan: detail?.jalan || nomAddr.jalan,
-          kelurahan: detail?.kelurahan || nomAddr.kelurahan,
-          kecamatan: detail?.kecamatan || nomAddr.kecamatan,
-          kota: detail?.kota || nomAddr.kota,
-          provinsi: detail?.provinsi || nomAddr.provinsi,
-          kodepos: detail?.kodepos || nomAddr.kodepos,
-          rt: detail?.rt || nomAddr.rt,
-          rw: detail?.rw || nomAddr.rw,
-        };
-        // RT/RW dari display_name nominatim
-        detail = enrichRtRw(detail, [nom.display_name, nom.name]);
-      }
-    }
+    // FINAL ADDRESS (sesuai kebijakanmu)
+    const finalAddr: AddressDetail = {
+      jalan: s.label || null, // label SUGGESTION (sudah dibersihkan RT/RW & tanpa "Java")
+      kelurahan: region.village?.name ?? null, // dari props (baru)
+      kecamatan: region.district?.name ?? null, // dari props
+      kota: region.city?.name ?? null, // dari props
+      provinsi: region.province?.name ?? null, // dari props
+      kodepos: kode,
+      rt: rtInput || null, // input user
+      rw: rwInput || null, // input user
+    };
 
-    // 4) Tambal RT/RW terakhir dari label, text yang kamu ketik, dan raw Photon
-    detail = enrichRtRw(detail!, [s.label, text, s.raw?.name, s.raw?.locality, s.raw?.street]);
-
-    // 5) Kalau kelurahan masih kosong, coba tarik dari label
-    if (!detail.kelurahan) {
-      detail.kelurahan = kelFromLabel(s.label, detail.kelurahan);
-    }
-
-    setAddr(detail!);
+    setAddr(finalAddr);
     mapRef.current?.flyTo([s.lat, s.lon], 16, { duration: 0.8 });
-    onPicked?.({ coords: { lat: s.lat, lon: s.lon }, display: s.label, address: detail! });
+    onPicked?.({ coords: { lat: s.lat, lon: s.lon }, display: s.label, address: finalAddr });
   };
 
   // reset saat wilayah berubah
@@ -565,7 +488,9 @@ const AddressAutocompleteLeaflet: React.FC<{
     setAddr(null);
     setCoords(null);
     setActiveIdx(-1);
-  }, [region.province?.id, region.city?.id, region.district?.id, region.postalCode]);
+    setRtInput("");
+    setRwInput("");
+  }, [region.province?.id, region.city?.id, region.district?.id, region.village?.id, region.postalCode]);
 
   // keyboard nav
   const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -619,6 +544,7 @@ const AddressAutocompleteLeaflet: React.FC<{
               <span className="ml-3">Prov: {region.province?.name ?? "-"}</span>
               <span className="ml-2">Kota: {region.city?.name ?? "-"}</span>
               <span className="ml-2">Kec: {region.district?.name ?? "-"}</span>
+              <span className="ml-2">Kel: {region.village?.name ?? "-"}</span>
               <span className="ml-2">KodePos (STRICT): {region.postalCode ?? "-"}</span>
               <span className="ml-2">Negara: ID only</span>
             </div>
@@ -637,6 +563,34 @@ const AddressAutocompleteLeaflet: React.FC<{
               ))}
           </div>
         )}
+      </div>
+
+      {/* RT/RW manual */}
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-gray-600">RT</label>
+          <input
+            value={rtInput}
+            onChange={(e) => {
+              setRtInput(e.target.value);
+              setAddr((prev) => (prev ? { ...prev, rt: e.target.value || null } : prev));
+            }}
+            className="w-full rounded-md border px-3 py-2 outline-none"
+            placeholder="contoh: 09"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-gray-600">RW</label>
+          <input
+            value={rwInput}
+            onChange={(e) => {
+              setRwInput(e.target.value);
+              setAddr((prev) => (prev ? { ...prev, rw: e.target.value || null } : prev));
+            }}
+            className="w-full rounded-md border px-3 py-2 outline-none"
+            placeholder="contoh: 03"
+          />
+        </div>
       </div>
 
       <div className="mt-6" />
