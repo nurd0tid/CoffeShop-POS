@@ -1,37 +1,36 @@
 "use client";
+
+import React, { useState } from "react";
 import { Card, ConfigProvider } from "antd";
-import React from "react";
-import AddressAutocompleteLeaflet from "./AddressAutocompleteLeaflet";
+import AddressAutocomplete from "./address-auto-complete";
+import Map from "./maps";
+
+type LatLng = { lat: number; lng: number };
+type Boundary = { northeast: LatLng; southwest: LatLng };
+
+function makeBoundaryFromCoords(center: LatLng, radiusMeters = 400): Boundary {
+  const metersPerDegLat = 111_320;
+  const metersPerDegLng = 111_320 * Math.cos((center.lat * Math.PI) / 180);
+  const dLat = radiusMeters / metersPerDegLat;
+  const dLng = radiusMeters / metersPerDegLng;
+  return {
+    northeast: { lat: center.lat + dLat, lng: center.lng + dLng },
+    southwest: { lat: center.lat - dLat, lng: center.lng - dLng },
+  };
+}
 
 const Content = () => {
-  // (opsional) simpan hasil pick buat dicek
-  const [picked, setPicked] = React.useState<null | {
-    coords: { lat: number; lon: number };
-    display: string;
-    address: {
-      jalan: string | null;
-      kelurahan: string | null;
-      kecamatan: string | null;
-      kota: string | null;
-      provinsi: string | null;
-      kodepos: string | null;
-      rt: string | null;
-      rw: string | null;
-    };
-  }>(null);
+  const [selected, setSelected] = useState<{
+    address: string;
+    coords: { lat: number; lng: number };
+  } | null>(null);
 
-  // Pastikan region sudah termasuk kelurahan (village)
-  // Contoh untuk Kembangan, Jakarta Barat, kode pos 11640 → kelurahan Joglo
-  const region = React.useMemo(
-    () => ({
-      province: { id: "31", name: "Daerah Khusus Ibukota Jakarta" },
-      city: { id: "3174", name: "Kota Jakarta Barat" },
-      district: { id: "3174020", name: "Kecamatan Kembangan" }, // nama bebas, filter tetap jalan
-      village: { id: "3174020005", name: "Kelurahan Joglo" }, // ⬅️ kelurahan (BARU)
-      postalCode: "11640", // STRICT filter 5 digit
-    }),
-    []
-  );
+  const [areaBoundary, setAreaBoundary] = useState<Boundary | null>(null);
+
+  const provinsi = "Daerah Khusus Ibukota Jakarta";
+  const kodePos = "11640";
+
+  const acKey = selected ? `${selected.coords.lat.toFixed(6)},${selected.coords.lng.toFixed(6)}` : "init";
 
   return (
     <ConfigProvider>
@@ -42,21 +41,34 @@ const Content = () => {
         </div>
       </div>
 
-      <Card title="Default size card">
-        <AddressAutocompleteLeaflet
-          region={region}
-          onPicked={(r) => {
-            // r.display = label suggestion yang sudah dibersihkan (tanpa RT/RW & tanpa "Java")
-            // r.address.jalan = persis label tersebut
-            // admin area (kel/kec/kota/prov) diisi dari props region; RT/RW dari input user
-            setPicked(r);
-            console.log("picked:", r);
+      <Card title="Pilih Alamat dan Lokasi">
+        <AddressAutocomplete
+          key={acKey}
+          provinsi={provinsi}
+          kodePos={kodePos}
+          initialAddress={selected?.address ?? ""}
+          onAddressSelect={(address, coords) => {
+            const fixed = { lat: coords.lat, lng: coords.lng };
+            setSelected({ address, coords: fixed });
+            setAreaBoundary(makeBoundaryFromCoords(fixed, 400));
           }}
         />
+
+        <div className="mt-4">
+          <Map
+            coordinates={selected ? selected.coords : null}
+            initialAddress={selected ? selected.address : ""}
+            areaBoundary={areaBoundary}
+            allowedPostal={kodePos}
+            onLocationConfirm={(newAddress, newCoords) => {
+              setSelected({ address: newAddress, coords: newCoords });
+              setAreaBoundary(makeBoundaryFromCoords(newCoords, 400));
+            }}
+          />
+        </div>
       </Card>
 
-      {/* debug kecil biar kelihatan hasil */}
-      {picked && <pre className="mt-4 p-3 rounded-md border bg-white text-xs overflow-auto">{JSON.stringify(picked, null, 2)}</pre>}
+      {selected && <pre className="mt-4 p-3 rounded-md border bg-white text-xs overflow-auto">{JSON.stringify(selected, null, 2)}</pre>}
     </ConfigProvider>
   );
 };
