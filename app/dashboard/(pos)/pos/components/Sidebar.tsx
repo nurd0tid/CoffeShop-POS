@@ -10,6 +10,9 @@ import { FiEdit, FiMinusCircle, FiPlusCircle, FiUserPlus } from "react-icons/fi"
 import { IoCloseOutline, IoTrashOutline } from "react-icons/io5";
 import { RiQrScan2Line } from "react-icons/ri";
 import { TbTrashXFilled } from "react-icons/tb";
+import { Modal, QRCode } from "antd";
+import { buildOrderPayload, buildPayUrlWithToken, genRef } from "@/lib/utils/qr";
+import { encryptPayload } from "@/lib/utils/secure-qr";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 const options = [
@@ -30,9 +33,14 @@ type SidebarProps = {
   onClearMenus: () => void;
 };
 
+type QrContext = { kind: "item"; itemId: string } | { kind: "order" };
+
 const Sidebar = ({ selectedMenus, onDeleteMenu, onClearMenus }: SidebarProps) => {
-  // State untuk quantity per menu
   const [quantities, setQuantities] = useState<{ [id: string]: number }>({});
+  const [qrOpen, setQrOpen] = useState(false);
+  const [qrValue, setQrValue] = useState<string>("");
+  const [qrTitle, setQrTitle] = useState<string>("Scan QR");
+  const [qrContext, setQrContext] = useState<QrContext | null>(null);
 
   // Set default quantity 1 jika belum ada
   useEffect(() => {
@@ -82,6 +90,74 @@ const Sidebar = ({ selectedMenus, onDeleteMenu, onClearMenus }: SidebarProps) =>
   const total = subtotal + tax - discount;
 
   const formatRupiah = (value: number) => "Rp" + value.toLocaleString("id-ID", { minimumFractionDigits: 0 });
+
+  const buildItemRef = (id: string) => genRef(selectedMenus.findIndex((m) => m.id === id));
+
+  // Item QR (boleh tetap JSON, atau juga kamu enkripsi & pakai /scan?t=...)
+  const buildItemQrJson = (menu: MenuItem) => {
+    const qty = quantities[menu.id] || 1;
+    const unitPrice = menu.price[0].value;
+    return JSON.stringify({
+      type: "pos_item",
+      version: 1,
+      issued_at: new Date().toISOString(),
+      currency: "IDR",
+      store: { name: "My Store" },
+      item: {
+        id: menu.id,
+        ref: buildItemRef(menu.id),
+        name: menu.name,
+        qty,
+        unitPrice,
+        subtotal: unitPrice * qty,
+      },
+    });
+  };
+
+  async function openItemQr(itemId: string) {
+    setQrContext({ kind: "item", itemId });
+    const item = selectedMenus.find((m) => m.id === itemId);
+    if (!item) return;
+
+    // kalau mau konsisten secure, kita juga bisa encrypt & buat /pay? atau /scan?
+    // Untuk sekarang: tampilkan QR JSON biasa (atau ganti ke token juga, up to you).
+    const json = buildItemQrJson(item);
+    setQrTitle(`Scan Item · ${item.name}`);
+    setQrValue(json); // <- ini masih JSON; kalau mau token: encryptPayload(json) lalu build URL lain
+    setQrOpen(true);
+  }
+
+  async function openOrderQr() {
+    setQrContext({ kind: "order" });
+
+    const items = selectedMenus.map((m) => ({
+      id: m.id,
+      ref: buildItemRef(m.id),
+      name: m.name,
+      qty: quantities[m.id] || 1,
+      unitPrice: m.price[0].value,
+      subtotal: (quantities[m.id] || 1) * m.price[0].value,
+    }));
+
+    const payload = buildOrderPayload({
+      storeName: "My Store",
+      transactionId: "#655565",
+      items,
+      summary: { subtotal, tax, discount, total },
+    });
+
+    // 1) encrypt payload -> token
+    const token = await encryptPayload(payload);
+
+    const origin = "http://192.168.1.8:3000";
+
+    // 2) build URL /pay?t=<token>
+    const url = buildPayUrlWithToken(token, origin);
+
+    setQrTitle("Scan to Pay · Order");
+    setQrValue(url);
+    setQrOpen(true);
+  }
 
   return (
     <>
@@ -270,22 +346,25 @@ const Sidebar = ({ selectedMenus, onDeleteMenu, onClearMenus }: SidebarProps) =>
             <h4 className="mb-[10px] font-medium mt-0 text-[1.125rem] text-[#212b36]">Payment Method</h4>
             <div className="grid grid-cols-3 gap-3">
               <div className="">
-                <div className="transition-all duration-[.5s] ease-in p-[10px_15px] text-[15px] text-[#092c4c] rounded-[10px] border border-[#e6eaed] cursor-pointer hover:bg-[#fff6ee] hover:border-[#0076f9] hover:text-[#0076f9]  flex flex-col items-center justify-center gap-2">
+                <button className="transition-all w-full duration-[.5s] ease-in p-[10px_15px] text-[15px] text-[#092c4c] rounded-[10px] border border-[#e6eaed] cursor-pointer hover:bg-[#fff6ee] hover:border-[#0076f9] hover:text-[#0076f9]  flex flex-col items-center justify-center gap-2">
                   <BsCash className="text-[#646b72] hover:text-[#0076f9] text-lg" />
                   Cash
-                </div>
+                </button>
               </div>
               <div className="">
-                <div className="transition-all duration-[.5s] ease-in p-[10px_15px] text-[15px] text-[#092c4c] rounded-[10px] border border-[#e6eaed] cursor-pointer hover:bg-[#fff6ee] hover:border-[#0076f9] hover:text-[#0076f9]  flex flex-col items-center justify-center gap-2">
+                <button className="transition-all duration-[.5s] w-full ease-in p-[10px_15px] text-[15px] text-[#092c4c] rounded-[10px] border border-[#e6eaed] cursor-pointer hover:bg-[#fff6ee] hover:border-[#0076f9] hover:text-[#0076f9]  flex flex-col items-center justify-center gap-2">
                   <CiCreditCard1 className="text-[#646b72] hover:text-[#0076f9] text-lg" />
                   Debit Card
-                </div>
+                </button>
               </div>
               <div className="">
-                <div className="transition-all duration-[.5s] ease-in p-[10px_15px] text-[15px] text-[#092c4c] rounded-[10px] border border-[#e6eaed] cursor-pointer hover:bg-[#fff6ee] hover:border-[#0076f9] hover:text-[#0076f9] flex flex-col items-center justify-center gap-2">
+                <button
+                  onClick={openOrderQr}
+                  className="transition-all duration-[.5s] ease-in w-full p-[10px_15px] text-[15px] text-[#092c4c] rounded-[10px] border border-[#e6eaed] cursor-pointer hover:bg-[#fff6ee] hover:border-[#0076f9] hover:text-[#0076f9] flex flex-col items-center justify-center gap-2"
+                >
                   <RiQrScan2Line className="text-[#646b72] hover:text-[#0076f9] text-lg" />
                   Scan
-                </div>
+                </button>
               </div>
             </div>
           </div>
@@ -320,6 +399,12 @@ const Sidebar = ({ selectedMenus, onDeleteMenu, onClearMenus }: SidebarProps) =>
           </div>
         </aside>
       </div>
+
+      <Modal open={qrOpen} onCancel={() => setQrOpen(false)} footer={null} centered title={qrTitle}>
+        <div className="w-full flex flex-col items-center gap-4">
+          <QRCode value={qrValue} size={240} icon="/logo.png" iconSize={48} bordered errorLevel="Q" />
+        </div>
+      </Modal>
     </>
   );
 };
