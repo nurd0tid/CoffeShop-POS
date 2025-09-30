@@ -1,5 +1,6 @@
 // lib/roles-data.ts
-import { RoleRow } from "@/app/dashboard/roles-permissions/components/Content";
+
+import { RoleRow } from "@/app/dashboard/(dash)/roles-permissions/components/Content";
 import rolePermJson from "@/data/role-perm.json"; // [{ role_code, permissions: [...] }]
 import userRolesJson from "@/data/user-roles.json"; // [{ company_id, user_id, role_codes: [...] }]
 

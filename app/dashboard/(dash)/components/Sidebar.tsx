@@ -4,9 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { usePathname } from "next/navigation";
-import { GoShieldLock } from "react-icons/go";
+import { GoChecklist, GoShieldLock } from "react-icons/go";
 import { RxDashboard } from "react-icons/rx";
-import { TbJumpRope, TbMapPinPin } from "react-icons/tb";
+import { TbBrandUnity, TbCarouselVertical, TbJumpRope, TbListDetails, TbMapPinPin, TbProgressAlert, TbQrcode, TbTablePlus, TbTriangle } from "react-icons/tb";
+import { BsBoxSeam } from "react-icons/bs";
+import { IoTrendingUp } from "react-icons/io5";
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -46,6 +48,72 @@ const Sidebar = () => {
                   <Link href="/dashboard/map" className={linkCls("/dashboard/map")}>
                     <TbMapPinPin size={14} className="text-inherit" />
                     <span className="whitespace-nowrap text-inherit">Map</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+
+            <li className="mb-[16px]">
+              <h6 className="font-bold text-xs text-[#092c4c] m-[0_0_8px]">Inventory</h6>
+              <ul className="border-b border-b-[#e6eaed] pb-[16px] block">
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products" className={linkCls("/dashboard/products")}>
+                    <BsBoxSeam size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Products</span>
+                  </Link>
+                </li>
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products/add" className={linkCls("/dashboard/products/add")}>
+                    <TbTablePlus size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Create Product</span>
+                  </Link>
+                </li>
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products/expired" className={linkCls("/dashboard/products/expired")}>
+                    <TbProgressAlert size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Expired Product</span>
+                  </Link>
+                </li>
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products/low-stock" className={linkCls("/dashboard/products/low-stock")}>
+                    <IoTrendingUp size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Low Stocks</span>
+                  </Link>
+                </li>
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products/category" className={linkCls("/dashboard/products/category")}>
+                    <TbListDetails size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Category</span>
+                  </Link>
+                </li>
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products/sub-category" className={linkCls("/dashboard/products/sub-category")}>
+                    <TbCarouselVertical size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Sub Category</span>
+                  </Link>
+                </li>
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products/brands" className={linkCls("/dashboard/products/brands")}>
+                    <TbTriangle size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Brands</span>
+                  </Link>
+                </li>
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products/units" className={linkCls("/dashboard/products/units")}>
+                    <TbBrandUnity size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Units</span>
+                  </Link>
+                </li>
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products/variant-attributes" className={linkCls("/dashboard/products/variant-attributes")}>
+                    <GoChecklist size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Variant Attributes</span>
+                  </Link>
+                </li>
+                <li className="mb-[4px]">
+                  <Link href="/dashboard/products/warranties" className={linkCls("/dashboard/products/warranties")}>
+                    <TbQrcode size={14} className="text-inherit" />
+                    <span className="whitespace-nowrap text-inherit">Warranties</span>
                   </Link>
                 </li>
               </ul>
